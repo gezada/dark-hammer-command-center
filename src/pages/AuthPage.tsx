@@ -23,9 +23,9 @@ export default function AuthPage() {
           <CardHeader className="space-y-4 flex flex-col items-center">
             <Hammer className="h-12 w-12 text-primary" />
             <div className="text-center">
-              <CardTitle className="text-2xl">Welcome to Dark Hammer</CardTitle>
+              <CardTitle className="text-2xl">Bem-vindo ao Dark Hammer</CardTitle>
               <CardDescription>
-                Sign in with your Google account to connect your YouTube channels
+                Entre para acessar o gerenciador de canais do YouTube
               </CardDescription>
             </div>
           </CardHeader>
@@ -33,9 +33,6 @@ export default function AuthPage() {
             <GoogleAuthButton />
           </CardContent>
         </Card>
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          By signing in, you agree to our Terms of Service and Privacy Policy
-        </p>
       </div>
     </div>
   );

@@ -17,8 +17,6 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center space-x-6">
             <Link to="#features" className="text-sm font-medium hover:text-primary transition-colors">Features</Link>
             <Link to="#roadmap" className="text-sm font-medium hover:text-primary transition-colors">Roadmap</Link>
-            <Link to="/docs" className="text-sm font-medium hover:text-primary transition-colors">Docs</Link>
-            <Link to="/github" className="text-sm font-medium hover:text-primary transition-colors">GitHub</Link>
           </nav>
           <ThemeToggle />
           <Button asChild>
@@ -43,7 +41,7 @@ export default function LandingPage() {
             <Link to="/dashboard">Comece grátis</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="text-lg">
-            <Link to="/docs">Saiba mais</Link>
+            <Link to="#features">Saiba mais</Link>
           </Button>
         </div>
       </section>
@@ -234,8 +232,8 @@ export default function LandingPage() {
             <span className="text-lg font-bold">Dark Hammer</span>
           </div>
           <div className="flex flex-wrap justify-center gap-6 md:gap-8">
-            <Link to="/docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Docs</Link>
-            <Link to="/github" className="text-sm text-muted-foreground hover:text-foreground transition-colors">GitHub</Link>
+            <Link to="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</Link>
+            <Link to="#roadmap" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Roadmap</Link>
             <Link to="/contato" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contato</Link>
           </div>
         </div>
