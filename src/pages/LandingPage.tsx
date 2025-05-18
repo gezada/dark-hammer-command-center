@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Youtube, LayoutDashboard, Upload, MessageSquare, Hammer, Calendar, UploadCloud, Trophy, Brain, Magic, RocketLaunch } from "lucide-react";
+import { Youtube, LayoutDashboard, Upload, MessageSquare, Hammer, Calendar, UploadCloud, Trophy, Zap, Star, Rocket } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -147,7 +147,7 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center mb-6">
               <div className="h-10 w-10 rounded-full bg-muted text-muted-foreground flex items-center justify-center mr-4">
-                <Brain className="h-5 w-5" />
+                <Zap className="h-5 w-5" />
               </div>
               <h3 className="text-2xl font-semibold">V2</h3>
             </div>
@@ -156,19 +156,19 @@ export default function LandingPage() {
             </p>
             <ul className="space-y-4 opacity-70 mb-6">
               <li className="flex items-start">
-                <Magic className="h-5 w-5 shrink-0 mr-2" />
+                <Star className="h-5 w-5 shrink-0 mr-2" />
                 <span>AI para geração de ideias e headlines</span>
               </li>
               <li className="flex items-start">
-                <Magic className="h-5 w-5 shrink-0 mr-2" />
+                <Star className="h-5 w-5 shrink-0 mr-2" />
                 <span>Criação automática de thumbnails</span>
               </li>
               <li className="flex items-start">
-                <Magic className="h-5 w-5 shrink-0 mr-2" />
+                <Star className="h-5 w-5 shrink-0 mr-2" />
                 <span>Scripts otimizados por inteligência artificial</span>
               </li>
               <li className="flex items-start">
-                <Magic className="h-5 w-5 shrink-0 mr-2" />
+                <Star className="h-5 w-5 shrink-0 mr-2" />
                 <span>Text-to-Speech avançado em múltiplos idiomas</span>
               </li>
             </ul>
@@ -184,7 +184,7 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center mb-6">
               <div className="h-10 w-10 rounded-full bg-muted text-muted-foreground flex items-center justify-center mr-4">
-                <RocketLaunch className="h-5 w-5" />
+                <Rocket className="h-5 w-5" />
               </div>
               <h3 className="text-2xl font-semibold">V3</h3>
             </div>
@@ -193,15 +193,15 @@ export default function LandingPage() {
             </p>
             <ul className="space-y-4 opacity-70">
               <li className="flex items-start">
-                <RocketLaunch className="h-5 w-5 shrink-0 mr-2" />
+                <Rocket className="h-5 w-5 shrink-0 mr-2" />
                 <span>Geração completa de vídeos automatizada</span>
               </li>
               <li className="flex items-start">
-                <RocketLaunch className="h-5 w-5 shrink-0 mr-2" />
+                <Rocket className="h-5 w-5 shrink-0 mr-2" />
                 <span>Agendamento inteligente baseado em dados</span>
               </li>
               <li className="flex items-start">
-                <RocketLaunch className="h-5 w-5 shrink-0 mr-2" />
+                <Rocket className="h-5 w-5 shrink-0 mr-2" />
                 <span>Análise preditiva de performance</span>
               </li>
               <li className="flex items-start">
