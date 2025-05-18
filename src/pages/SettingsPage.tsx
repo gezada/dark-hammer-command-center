@@ -10,18 +10,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStore } from "@/lib/store";
 
 export default function SettingsPage() {
-  const { youtubeApiKey, setYoutubeApiKey } = useStore();
+  const { youtubeApiKey, setYoutubeApiKey, userName, setUserName, sidebarCollapsed } = useStore();
   const [apiKey, setApiKey] = useState(youtubeApiKey || "");
+  const [name, setName] = useState(userName || "");
   
   const handleSaveApiKey = () => {
     setYoutubeApiKey(apiKey);
     toast.success("Chave de API do YouTube salva com sucesso!");
   };
   
+  const handleUpdateProfile = () => {
+    setUserName(name);
+    toast.success("Perfil atualizado com sucesso!");
+  };
+  
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
-      <main className="flex-1 p-6 overflow-auto ml-[60px] md:ml-[240px] transition-all duration-300">
+      <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
         <div className="space-y-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Configurações</h1>
@@ -32,7 +38,6 @@ export default function SettingsPage() {
             <TabsList className="mb-4">
               <TabsTrigger value="api">Integração de API</TabsTrigger>
               <TabsTrigger value="account">Conta</TabsTrigger>
-              <TabsTrigger value="appearance">Aparência</TabsTrigger>
             </TabsList>
             
             <TabsContent value="api">
@@ -86,42 +91,12 @@ export default function SettingsPage() {
                       <Label htmlFor="name">Nome</Label>
                       <Input
                         id="name"
-                        defaultValue="John Doe"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         placeholder="Seu nome"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        defaultValue="john@example.com"
-                        placeholder="Seu email"
-                        type="email"
-                      />
-                    </div>
-                    <Button>Atualizar Perfil</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="appearance">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Aparência</CardTitle>
-                  <CardDescription>
-                    Personalize a aparência da sua aplicação Dark Hammer.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Tema</Label>
-                      <div className="flex space-x-2">
-                        <Button variant="outline">Claro</Button>
-                        <Button>Escuro</Button>
-                      </div>
-                    </div>
+                    <Button onClick={handleUpdateProfile}>Atualizar Perfil</Button>
                   </div>
                 </CardContent>
               </Card>

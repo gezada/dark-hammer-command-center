@@ -25,7 +25,7 @@ import {
 } from 'recharts';
 
 export default function AnalyticsPage() {
-  const { selectedChannelId, dateRange } = useStore();
+  const { sidebarCollapsed, selectedChannelId, dateRange } = useStore();
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch analytics data
@@ -52,13 +52,16 @@ export default function AnalyticsPage() {
     { name: '55+', value: 5 },
   ];
 
-  const AUDIENCE_COLORS = ['#8884d8', '#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE'];
+  // Updated colors to use red shades instead of purple
+  const AUDIENCE_COLORS = ['#ea384c', '#f0616f', '#f58991', '#fab1b5', '#ffd8da'];
+  const CHART_COLOR = '#ea384c';
+  const CHART_FILL = 'rgba(234, 56, 76, 0.5)';
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <AppHeader />
-        <main className="flex-1 p-6 overflow-auto">
+        <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
           <AnalyticsSkeleton />
         </main>
       </div>
@@ -68,7 +71,7 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
-      <main className="flex-1 p-6 overflow-auto">
+      <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
         <div className="space-y-8">
           {/* KPI Cards */}
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
@@ -167,7 +170,7 @@ export default function AnalyticsPage() {
                       <XAxis dataKey="date" />
                       <YAxis />
                       <Tooltip />
-                      <Area type="monotone" dataKey="value" stroke="#8B5CF6" fill="#8B5CF680" />
+                      <Area type="monotone" dataKey="value" stroke={CHART_COLOR} fill={CHART_FILL} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -198,7 +201,7 @@ export default function AnalyticsPage() {
                       <XAxis dataKey="date" />
                       <YAxis />
                       <Tooltip />
-                      <Bar dataKey="value" fill="#8B5CF6" />
+                      <Bar dataKey="value" fill={CHART_COLOR} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -229,7 +232,7 @@ export default function AnalyticsPage() {
                       <XAxis dataKey="date" />
                       <YAxis />
                       <Tooltip />
-                      <Line type="monotone" dataKey="value" stroke="#8B5CF6" strokeWidth={2} />
+                      <Line type="monotone" dataKey="value" stroke={CHART_COLOR} strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -255,7 +258,7 @@ export default function AnalyticsPage() {
                         labelLine={false}
                         label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                         outerRadius={80}
-                        fill="#8884d8"
+                        fill={CHART_COLOR}
                         dataKey="value"
                       >
                         {audienceData.map((entry, index) => (

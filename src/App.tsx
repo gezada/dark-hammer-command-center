@@ -37,24 +37,26 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="flex w-full"> {/* Added a wrapper with w-full to ensure proper layout */}
+          <div className="flex w-full overflow-hidden min-h-screen">
             <CommandPalette />
             <AppSidebar />
-            <Routes>
-              {/* Redirect root to dashboard */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              
-              {/* Main routes */}
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/upload" element={<UploadPage />} />
-              <Route path="/analytics" element={<AnalyticsPage />} />
-              <Route path="/comments" element={<CommentsPage />} />
-              <Route path="/channels" element={<ChannelsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              
-              {/* 404 page */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <div className="flex flex-col flex-grow">
+              <Routes>
+                {/* Redirect root to dashboard */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                
+                {/* Main routes */}
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/upload" element={<UploadPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="/comments" element={<CommentsPage />} />
+                <Route path="/channels" element={<ChannelsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                
+                {/* 404 page */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
           </div>
         </BrowserRouter>
       </TooltipProvider>

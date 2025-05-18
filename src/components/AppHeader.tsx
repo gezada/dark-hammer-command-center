@@ -2,7 +2,7 @@
 import { useStore } from "@/lib/store";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/button";
-import { Command, Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { fetchAnalytics } from "@/lib/api";
 import { ComboboxDemo } from "./ChannelSelector";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +13,7 @@ import { ptBR } from "date-fns/locale";
 import { useState } from "react";
 
 export function AppHeader() {
-  const { selectedChannelId, dateRange, setDateRange, customDateRange, setCustomDateRange } = useStore();
+  const { sidebarCollapsed, selectedChannelId, dateRange, setDateRange, customDateRange, setCustomDateRange } = useStore();
   const [calendarOpen, setCalendarOpen] = useState(false);
   
   // Use React Query to safely fetch analytics data
@@ -23,14 +23,6 @@ export function AppHeader() {
     staleTime: 1000 * 60 * 60 * 6, // 6 hours
   });
 
-  const handleOpenCommandPalette = (e: React.MouseEvent) => {
-    e.preventDefault();
-    // Simulate pressing Cmd+K/Ctrl+K
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "k", metaKey: true })
-    );
-  };
-  
   const formatDateRange = () => {
     if (dateRange !== 'custom' || !customDateRange.startDate || !customDateRange.endDate) {
       return "";
@@ -42,15 +34,23 @@ export function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 h-16 px-4 sm:px-6 flex items-center justify-between ml-[60px] md:ml-[240px] transition-all duration-300">
+    <header className={cn(
+      "sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 h-16 px-4 sm:px-6 flex items-center justify-between transition-all duration-300",
+      sidebarCollapsed ? "ml-[60px]" : "ml-[240px]"
+    )}>
       <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto hide-scrollbar">
-        <Button variant="outline" size="icon" onClick={handleOpenCommandPalette} className="shrink-0">
-          <Command className="h-4 w-4" />
-        </Button>
         <div className="max-w-[240px] shrink-0">
           <ComboboxDemo />
         </div>
         <div className="flex items-center space-x-1 overflow-x-auto hide-scrollbar">
+          <Button
+            variant={dateRange === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setDateRange('all')}
+            className="h-8 whitespace-nowrap"
+          >
+            All
+          </Button>
           <Button
             variant={dateRange === '12h' ? 'default' : 'outline'}
             size="sm"
@@ -127,4 +127,9 @@ export function AppHeader() {
       </div>
     </header>
   );
+}
+
+// Helper function
+function cn(...inputs) {
+  return inputs.filter(Boolean).join(" ");
 }

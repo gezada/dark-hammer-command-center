@@ -1,418 +1,450 @@
 
 import { AppHeader } from "@/components/AppHeader";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useStore } from "@/lib/store";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UploadSkeleton } from "@/components/skeleton/UploadSkeleton";
-import { UploadCloud, Calendar, Clock, Tag, Image as ImageIcon, Tag as TagIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useSearchParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { 
+  Calendar, 
+  Globe, 
+  Lock, 
+  EyeOff,
+  Save,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from "react";
+import { toast } from "sonner";
+import { v4 as uuidv4 } from 'uuid';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 export default function UploadPage() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [searchParams] = useSearchParams();
-  const showCalendar = searchParams.get('calendar') === 'true';
+  const { 
+    sidebarCollapsed, 
+    channels = [], 
+    uploadTemplates,
+    addTemplate, 
+    updateTemplate,
+    removeTemplate,
+  } = useStore();
   
-  // Simulate loading state
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    // Handle file upload logic here
-    simulateUpload();
-    // Prevent default behavior (Prevent file from being opened)
-    e.stopPropagation();
-  };
+  // Template form
+  const [templateName, setTemplateName] = useState("");
+  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [tags, setTags] = useState("");
+  const [visibility, setVisibility] = useState<"public" | "unlisted" | "private">("public");
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  const handleFileSelect = () => {
-    simulateUpload();
-  };
+  // Upload form
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadDescription, setUploadDescription] = useState("");
+  const [uploadTags, setUploadTags] = useState("");
+  const [uploadVisibility, setUploadVisibility] = useState<"public" | "unlisted" | "private">("public");
+  const [uploadScheduledDate, setUploadScheduledDate] = useState<Date | null>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   
-  const simulateUpload = () => {
-    setIsUploading(true);
-    setUploadProgress(0);
+  // Safe access to channels
+  const safeChannels = Array.isArray(channels) ? channels : [];
+  const connectedChannels = safeChannels.filter(c => c && c.isConnected);
+  
+  const handleSaveTemplate = () => {
+    const template = {
+      id: uuidv4(),
+      channelId: selectedChannelId,
+      name: templateName,
+      title,
+      description,
+      tags: tags.split(',').map(tag => tag.trim()),
+      visibility,
+      scheduledDate,
+    };
     
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setIsUploading(false), 500);
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 200);
+    addTemplate(template);
+    toast.success("Template salvo com sucesso!");
+    setIsDialogOpen(false);
+    resetTemplateForm();
   };
   
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <AppHeader />
-        <main className="flex-1 p-6 overflow-auto">
-          <UploadSkeleton />
-        </main>
-      </div>
-    );
-  }
+  const resetTemplateForm = () => {
+    setTemplateName("");
+    setSelectedChannelId(null);
+    setTitle("");
+    setDescription("");
+    setTags("");
+    setVisibility("public");
+    setScheduledDate(null);
+  };
   
+  const handleApplyTemplate = (templateId: string) => {
+    const template = uploadTemplates.find(t => t.id === templateId);
+    if (template) {
+      setUploadTitle(template.title);
+      setUploadDescription(template.description);
+      setUploadTags(template.tags.join(', '));
+      setUploadVisibility(template.visibility);
+      setUploadScheduledDate(template.scheduledDate);
+      toast.success("Template aplicado com sucesso!");
+    }
+  };
+  
+  const handleDeleteTemplate = (templateId: string) => {
+    removeTemplate(templateId);
+    toast.success("Template removido com sucesso!");
+  };
+  
+  const handleUpload = () => {
+    // This would connect to YouTube API in the real implementation
+    toast.success("Vídeo enviado com sucesso!");
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
-      <main className="flex-1 p-4 md:p-6 overflow-auto ml-[60px] md:ml-[240px] transition-all duration-300">
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Upload & Agendamento</h1>
-              <p className="text-muted-foreground">Faça upload de vídeos e agende-os para publicação.</p>
-            </div>
-            <div>
-              <Button
-                variant={showCalendar ? "default" : "outline"}
-                className="w-full sm:w-auto"
-                onClick={() => {}}
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                Visualizar Calendário
-              </Button>
-            </div>
-          </div>
+      <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight mb-6">Upload & Schedule</h1>
           
-          <Tabs defaultValue={showCalendar ? "calendar" : "upload"}>
-            <TabsList className="mb-4">
-              <TabsTrigger value="upload">Upload de Vídeo</TabsTrigger>
-              <TabsTrigger value="calendar">Calendário de Publicação</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="upload" className="space-y-6">
-              {/* Upload Area */}
-              {!isUploading && (
-                <div
-                  className={`border-2 border-dashed rounded-lg p-12 text-center ${
-                    isDragging ? "border-primary bg-primary/10" : "border-border"
-                  } transition-all duration-200`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  <div className="flex flex-col items-center justify-center space-y-4">
-                    <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                      <UploadCloud className="h-8 w-8 text-primary" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left column - Upload form */}
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Upload de Vídeo</CardTitle>
+                  <CardDescription>Envie seu vídeo para o YouTube</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <Label htmlFor="video-file">Arquivo do Vídeo</Label>
+                    <div className="mt-2 flex items-center justify-center w-full">
+                      <label 
+                        htmlFor="video-file" 
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50"
+                      >
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg className="w-8 h-8 text-gray-500 mb-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500">
+                            <span className="font-semibold">Clique para carregar</span> ou arraste e solte
+                          </p>
+                          <p className="text-xs text-gray-500">MP4, MOV ou WEBM (MAX. 10GB)</p>
+                        </div>
+                        <input 
+                          id="video-file" 
+                          type="file" 
+                          className="hidden" 
+                          accept="video/mp4,video/webm,video/mov"
+                          onChange={(e) => setUploadFile(e.target.files ? e.target.files[0] : null)}
+                        />
+                      </label>
                     </div>
-                    <h3 className="text-xl font-medium">Arraste e Solte Arquivos de Vídeo</h3>
-                    <p className="text-sm text-muted-foreground max-w-md">
-                      Faça upload de arquivos MP4, MOV ou AVI de até 12GB. Seus vídeos serão armazenados com segurança
-                      e prontos para publicação.
-                    </p>
-                    <div className="flex flex-wrap gap-4 justify-center">
-                      <Button onClick={handleFileSelect}>
-                        <UploadCloud className="mr-2 h-4 w-4" />
-                        Selecionar Arquivos
+                    {uploadFile && (
+                      <p className="mt-2 text-sm text-gray-500">{uploadFile.name}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Título</Label>
+                    <Input 
+                      id="title" 
+                      placeholder="Digite o título do vídeo" 
+                      value={uploadTitle}
+                      onChange={(e) => setUploadTitle(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Descrição</Label>
+                    <Textarea 
+                      id="description" 
+                      placeholder="Digite a descrição do vídeo" 
+                      rows={5}
+                      value={uploadDescription}
+                      onChange={(e) => setUploadDescription(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
+                    <Input 
+                      id="tags" 
+                      placeholder="game, tutorial, gameplay" 
+                      value={uploadTags}
+                      onChange={(e) => setUploadTags(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Visibilidade</Label>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <Button 
+                        type="button" 
+                        variant={uploadVisibility === "public" ? "default" : "outline"}
+                        onClick={() => setUploadVisibility("public")}
+                        className="flex items-center"
+                      >
+                        <Globe className="h-4 w-4 mr-2" />
+                        Público
                       </Button>
-                      <Button variant="outline">
-                        Importar do Google Drive
+                      <Button 
+                        type="button" 
+                        variant={uploadVisibility === "unlisted" ? "default" : "outline"}
+                        onClick={() => setUploadVisibility("unlisted")}
+                        className="flex items-center"
+                      >
+                        <EyeOff className="h-4 w-4 mr-2" />
+                        Não listado
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant={uploadVisibility === "private" ? "default" : "outline"}
+                        onClick={() => setUploadVisibility("private")}
+                        className="flex items-center"
+                      >
+                        <Lock className="h-4 w-4 mr-2" />
+                        Privado
                       </Button>
                     </div>
                   </div>
-                </div>
-              )}
-              
-              {/* Upload Progress */}
-              {isUploading && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Upload em Progresso</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-primary/10 rounded-md flex items-center justify-center mr-4">
-                        <UploadCloud className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <p className="font-medium">meu-video.mp4</p>
-                          <span className="text-sm text-muted-foreground">{uploadProgress}%</span>
-                        </div>
-                        <Progress value={uploadProgress} className="h-2" />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {uploadProgress < 100 ? "Carregando..." : "Processando vídeo..."}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-              
-              {/* Video Details Form */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Detalhes do Vídeo</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
-                    {/* Left Column - Video Details */}
-                    <div className="space-y-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="title">Título</Label>
-                        <Input
-                          id="title"
-                          placeholder="Digite um título atraente para o seu vídeo"
-                          defaultValue="Construindo um Aplicativo Full-Stack com React e Node.js"
-                        />
-                        <p className="text-xs text-muted-foreground">0/100 caracteres</p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="description">Descrição</Label>
-                        <Textarea
-                          id="description"
-                          placeholder="Digite uma descrição detalhada do seu vídeo"
-                          rows={5}
-                          defaultValue="Neste tutorial abrangente, vamos construir um aplicativo full-stack completo usando React para o frontend e Node.js para o backend. Abordaremos autenticação, integração com banco de dados e implementação."
-                        />
-                        <p className="text-xs text-muted-foreground">0/5000 caracteres</p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Miniatura</Label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div className="border-2 border-dashed border-primary rounded-md p-4 aspect-video flex flex-col items-center justify-center text-center text-sm text-muted-foreground">
-                            <ImageIcon className="h-8 w-8 mb-2 text-primary" />
-                            <p>Clique para fazer upload</p>
-                          </div>
-                          <div className="border-2 border-dashed rounded-md p-4 aspect-video flex flex-col items-center justify-center text-center text-sm text-muted-foreground">
-                            <ImageIcon className="h-8 w-8 mb-2" />
-                            <p>Miniatura 2</p>
-                          </div>
-                          <div className="border-2 border-dashed rounded-md p-4 aspect-video flex flex-col items-center justify-center text-center text-sm text-muted-foreground">
-                            <ImageIcon className="h-8 w-8 mb-2" />
-                            <p>Miniatura 3</p>
-                          </div>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Faça upload de até 3 miniaturas diferentes para teste A/B. O YouTube otimizará automaticamente a melhor miniatura.
-                        </p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
-                        <div className="flex">
-                          <Input
-                            id="tags"
-                            placeholder="programação, webdev, coding"
-                            defaultValue="programação, webdev, coding"
-                          />
-                          <Button variant="outline" type="button" className="ml-2">
-                            <TagIcon className="h-4 w-4" />
+                  <div className="space-y-2">
+                    <Label>Programação</Label>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={uploadScheduledDate ? "default" : "outline"}
+                            className="flex items-center justify-start"
+                          >
+                            <Calendar className="h-4 w-4 mr-2" />
+                            {uploadScheduledDate 
+                              ? format(uploadScheduledDate, "dd/MM/yyyy HH:mm")
+                              : "Selecionar data e hora"}
                           </Button>
-                        </div>
-                      </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={uploadScheduledDate || undefined}
+                            onSelect={setUploadScheduledDate}
+                            initialFocus
+                          />
+                          <div className="p-3 border-t">
+                            <Label htmlFor="time">Hora</Label>
+                            <Input 
+                              id="time" 
+                              type="time" 
+                              className="mt-1"
+                              onChange={(e) => {
+                                if (uploadScheduledDate) {
+                                  const [hours, minutes] = e.target.value.split(':');
+                                  const newDate = new Date(uploadScheduledDate);
+                                  newDate.setHours(parseInt(hours), parseInt(minutes));
+                                  setUploadScheduledDate(newDate);
+                                } else {
+                                  const today = new Date();
+                                  const [hours, minutes] = e.target.value.split(':');
+                                  today.setHours(parseInt(hours), parseInt(minutes));
+                                  setUploadScheduledDate(today);
+                                }
+                              }}
+                            />
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      {uploadScheduledDate && (
+                        <Button
+                          variant="outline"
+                          onClick={() => setUploadScheduledDate(null)}
+                        >
+                          Limpar data
+                        </Button>
+                      )}
                     </div>
-                    
-                    {/* Right Column - Publishing Settings */}
-                    <div className="space-y-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="channel">Canal</Label>
-                        <Select defaultValue="channel1">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o canal" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="channel1">Canal de Tecnologia</SelectItem>
-                            <SelectItem value="channel2">Canal Secundário</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="category">Categoria</Label>
-                        <Select defaultValue="tech">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a categoria" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="tech">Ciência e Tecnologia</SelectItem>
-                            <SelectItem value="education">Educação</SelectItem>
-                            <SelectItem value="entertainment">Entretenimento</SelectItem>
-                            <SelectItem value="gaming">Jogos</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <Separator className="my-4" />
-                      
-                      <div className="space-y-4">
-                        <h3 className="font-medium">Privacidade</h3>
-                        <RadioGroup defaultValue="unlisted">
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="public" id="public" />
-                            <Label htmlFor="public" className="cursor-pointer">Público</Label>
-                            <span className="text-xs text-muted-foreground ml-auto">Todos podem assistir</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="unlisted" id="unlisted" />
-                            <Label htmlFor="unlisted" className="cursor-pointer">Não listado</Label>
-                            <span className="text-xs text-muted-foreground ml-auto">Apenas quem tiver o link</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="private" id="private" />
-                            <Label htmlFor="private" className="cursor-pointer">Privado</Label>
-                            <span className="text-xs text-muted-foreground ml-auto">Apenas você</span>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                      
-                      <Separator className="my-4" />
-                      
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-medium">Agendamento</h3>
-                          <Switch defaultChecked id="schedule" />
-                        </div>
-                        
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="channel">Canal</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um canal" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {connectedChannels.map(channel => (
+                          <SelectItem key={channel.id} value={channel.id}>
+                            {channel.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between flex-wrap gap-2">
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="flex items-center">
+                        <Save className="h-4 w-4 mr-2" />
+                        Salvar como Template
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Salvar Template</DialogTitle>
+                        <DialogDescription>
+                          Salve estas configurações como um template para uso futuro.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                          <Label htmlFor="publish-date">Data de publicação</Label>
-                          <Input type="date" id="publish-date" />
+                          <Label htmlFor="template-name">Nome do Template</Label>
+                          <Input 
+                            id="template-name" 
+                            placeholder="Ex: Gameplay padrão" 
+                            value={templateName}
+                            onChange={(e) => setTemplateName(e.target.value)}
+                          />
                         </div>
-                        
                         <div className="space-y-2">
-                          <Label htmlFor="publish-time">Horário de publicação</Label>
-                          <Input type="time" id="publish-time" />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="timezone">Fuso horário</Label>
-                          <Select defaultValue="gmt">
+                          <Label htmlFor="template-channel">Canal (opcional)</Label>
+                          <Select value={selectedChannelId || ""} onValueChange={setSelectedChannelId}>
                             <SelectTrigger>
-                              <SelectValue placeholder="Selecione o fuso horário" />
+                              <SelectValue placeholder="Template global (todos os canais)" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="gmt">GMT (Horário de Greenwich)</SelectItem>
-                              <SelectItem value="brt">BRT (Horário de Brasília)</SelectItem>
-                              <SelectItem value="est">EST (Horário Padrão do Leste)</SelectItem>
+                              <SelectItem value="">Template global (todos os canais)</SelectItem>
+                              {connectedChannels.map(channel => (
+                                <SelectItem key={channel.id} value={channel.id}>
+                                  {channel.title}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </div>
                       </div>
-                      
-                      <Separator className="my-4" />
-                      
-                      <div className="space-y-4">
-                        <h3 className="font-medium">Opções avançadas</h3>
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="comments" className="cursor-pointer">Permitir comentários</Label>
-                          <Switch defaultChecked id="comments" />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="likes" className="cursor-pointer">Mostrar curtidas e visualizações</Label>
-                          <Switch defaultChecked id="likes" />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="recommendations" className="cursor-pointer">Mostrar nas recomendações</Label>
-                          <Switch defaultChecked id="recommendations" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end gap-2 mt-6">
-                    <Button variant="outline">Salvar como Rascunho</Button>
-                    <Button>
-                      {uploadProgress === 100 ? "Agendar Publicação" : "Fazer Upload"}
-                    </Button>
-                  </div>
-                </CardContent>
+                      <DialogFooter>
+                        <Button 
+                          variant="default"
+                          onClick={handleSaveTemplate}
+                          disabled={!templateName}
+                        >
+                          Salvar Template
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                  <Button 
+                    variant="default"
+                    onClick={handleUpload}
+                    disabled={!uploadFile || !uploadTitle}
+                  >
+                    Fazer Upload
+                  </Button>
+                </CardFooter>
               </Card>
-            </TabsContent>
+            </div>
             
-            <TabsContent value="calendar" className="space-y-6">
+            {/* Right column - Templates */}
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Calendário de Publicações</CardTitle>
+                  <CardTitle>Templates de Upload</CardTitle>
+                  <CardDescription>Templates salvos para reutilização</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {/* Calendar would go here */}
-                    <div className="h-[500px] border rounded-md flex items-center justify-center">
-                      <p className="text-muted-foreground">Visualização de calendário será implementada aqui</p>
-                    </div>
+                    {uploadTemplates.length === 0 ? (
+                      <div className="text-center p-4">
+                        <p className="text-muted-foreground mb-2">Nenhum template salvo</p>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setIsDialogOpen(true)}
+                          className="flex items-center mx-auto"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Criar Template
+                        </Button>
+                      </div>
+                    ) : (
+                      uploadTemplates.map((template) => {
+                        const channelInfo = template.channelId 
+                          ? safeChannels.find(c => c.id === template.channelId) 
+                          : null;
+                          
+                        return (
+                          <Card key={template.id} className="overflow-hidden">
+                            <CardHeader className="p-4 pb-2">
+                              <div className="flex justify-between items-start">
+                                <CardTitle className="text-base">{template.name}</CardTitle>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteTemplate(template.id)}
+                                  className="h-6 w-6"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              {channelInfo && (
+                                <CardDescription className="flex items-center mt-1">
+                                  <Avatar className="h-4 w-4 mr-1">
+                                    <AvatarImage src={channelInfo.thumbnail} />
+                                    <AvatarFallback>{channelInfo.title[0]}</AvatarFallback>
+                                  </Avatar>
+                                  {channelInfo.title}
+                                </CardDescription>
+                              )}
+                            </CardHeader>
+                            <CardContent className="p-4 pt-0">
+                              <p className="text-sm truncate">{template.title}</p>
+                            </CardContent>
+                            <CardFooter className="p-4 pt-0">
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => handleApplyTemplate(template.id)}
+                              >
+                                Aplicar Template
+                              </Button>
+                            </CardFooter>
+                          </Card>
+                        );
+                      })
+                    )}
                   </div>
                 </CardContent>
               </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Próximos Vídeos Agendados</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Scheduled Video List */}
-                    <div className="border rounded-md p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="default">12 JUN 2025 - 09:00</Badge>
-                            <Badge variant="outline">Canal de Tecnologia</Badge>
-                          </div>
-                          <h4 className="font-semibold text-lg mt-2">10 Recursos Ocultos no VS Code que Você Precisa Conhecer</h4>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Reagendar
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="border rounded-md p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="default">15 JUN 2025 - 14:30</Badge>
-                            <Badge variant="outline">Canal Secundário</Badge>
-                          </div>
-                          <h4 className="font-semibold text-lg mt-2">Como Criar um Site Responsivo com Tailwind CSS</h4>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Reagendar
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
         </div>
       </main>
     </div>

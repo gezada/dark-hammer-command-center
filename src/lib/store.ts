@@ -11,11 +11,23 @@ export type Channel = {
 
 export type ThemeMode = 'dark' | 'light';
 
-type DateRange = '12h' | '7d' | '28d' | 'custom';
+type DateRange = 'all' | '12h' | '7d' | '28d' | 'custom';
 
 type DateRangeCustom = {
   startDate: Date | null;
   endDate: Date | null;
+};
+
+// Upload template for the channels
+type UploadTemplate = {
+  id: string;
+  channelId: string | null; // null for global templates
+  name: string;
+  title: string;
+  description: string;
+  tags: string[];
+  visibility: 'public' | 'unlisted' | 'private';
+  scheduledDate: Date | null;
 };
 
 interface DarkHammerState {
@@ -26,6 +38,8 @@ interface DarkHammerState {
   // User & Auth
   isAuthenticated: boolean;
   setIsAuthenticated: (value: boolean) => void;
+  userName: string;
+  setUserName: (name: string) => void;
   
   // API Configuration
   youtubeApiKey: string | null;
@@ -45,6 +59,12 @@ interface DarkHammerState {
   customDateRange: DateRangeCustom;
   setCustomDateRange: (range: DateRangeCustom) => void;
   
+  // Upload Templates
+  uploadTemplates: UploadTemplate[];
+  addTemplate: (template: UploadTemplate) => void;
+  updateTemplate: (id: string, template: Partial<UploadTemplate>) => void;
+  removeTemplate: (id: string) => void;
+  
   // UI State
   sidebarCollapsed: boolean;
   toggleSidebar: () => void;
@@ -62,6 +82,8 @@ export const useStore = create<DarkHammerState>()(
       // User & Auth
       isAuthenticated: true, // Setting default to true to skip auth
       setIsAuthenticated: (value) => set({ isAuthenticated: value }),
+      userName: 'John Doe',
+      setUserName: (name) => set({ userName: name }),
       
       // API Configuration
       youtubeApiKey: null,
@@ -87,13 +109,30 @@ export const useStore = create<DarkHammerState>()(
       // Filters
       selectedChannelId: null,
       setSelectedChannelId: (id) => set({ selectedChannelId: id }),
-      dateRange: '7d',
+      dateRange: 'all', // Default to 'all' now
       setDateRange: (range) => set({ dateRange: range }),
       customDateRange: {
         startDate: null,
         endDate: null
       },
       setCustomDateRange: (range) => set({ customDateRange: range }),
+      
+      // Upload Templates
+      uploadTemplates: [],
+      addTemplate: (template) => 
+        set((state) => ({ 
+          uploadTemplates: [...state.uploadTemplates, template] 
+        })),
+      updateTemplate: (id, templateUpdates) => 
+        set((state) => ({ 
+          uploadTemplates: state.uploadTemplates.map(t => 
+            t.id === id ? { ...t, ...templateUpdates } : t
+          )
+        })),
+      removeTemplate: (id) => 
+        set((state) => ({ 
+          uploadTemplates: state.uploadTemplates.filter(t => t.id !== id) 
+        })),
       
       // UI State
       sidebarCollapsed: false,
@@ -110,7 +149,10 @@ export const useStore = create<DarkHammerState>()(
         dateRange: state.dateRange,
         youtubeApiKey: state.youtubeApiKey,
         customDateRange: state.customDateRange,
-        isAuthenticated: state.isAuthenticated
+        isAuthenticated: state.isAuthenticated,
+        userName: state.userName,
+        uploadTemplates: state.uploadTemplates,
+        channels: state.channels
       }),
     }
   )

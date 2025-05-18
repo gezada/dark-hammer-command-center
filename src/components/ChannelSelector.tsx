@@ -18,11 +18,13 @@ import {
 } from "@/components/ui/popover";
 import { useStore } from "@/lib/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
 
 export function ComboboxDemo() {
   const [open, setOpen] = useState(false);
   const { channels = [], selectedChannelId, setSelectedChannelId } = useStore();
   const [value, setValue] = useState(selectedChannelId || "");
+  const navigate = useNavigate();
   
   // Update local state when global state changes
   useEffect(() => {
@@ -37,9 +39,19 @@ export function ComboboxDemo() {
   const hasConnectedChannels = connectedChannels.length > 0;
   
   const handleSelect = (currentValue: string) => {
-    setValue(currentValue === value ? "" : currentValue);
-    setSelectedChannelId(currentValue === value ? null : currentValue);
+    if (currentValue === value) {
+      setValue("");
+      setSelectedChannelId(null);
+    } else {
+      setValue(currentValue);
+      setSelectedChannelId(currentValue);
+    }
     setOpen(false);
+    
+    // If no channels are connected, redirect to the channels page
+    if (!hasConnectedChannels && currentValue === "add-channel") {
+      navigate("/channels");
+    }
   };
   
   // Make sure we safely find the channel
@@ -71,7 +83,20 @@ export function ComboboxDemo() {
       <PopoverContent className="w-[240px] p-0">
         <Command>
           <CommandInput placeholder="Buscar canal..." />
-          <CommandEmpty>Nenhum canal encontrado.</CommandEmpty>
+          <CommandEmpty>
+            {hasConnectedChannels ? "Nenhum canal encontrado." : (
+              <div className="py-2 text-center">
+                <p>Nenhum canal conectado</p>
+                <Button 
+                  variant="link" 
+                  className="mt-1 text-primary" 
+                  onClick={() => handleSelect("add-channel")}
+                >
+                  Adicionar Canal
+                </Button>
+              </div>
+            )}
+          </CommandEmpty>
           <CommandGroup>
             <CommandItem
               key="all-channels"
