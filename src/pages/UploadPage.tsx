@@ -1,43 +1,22 @@
 
-import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
-import { fetchUploads, VideoUpload } from "@/lib/api";
-import { useStore } from "@/lib/store";
-import { UploadSkeleton } from "@/components/skeleton/UploadSkeleton";
-import { Calendar, Clock, UploadCloud } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UploadSkeleton } from "@/components/skeleton/UploadSkeleton";
+import { UploadCloud, Calendar, Trash2, Clock, Tag, Check, ExternalLink } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 export default function UploadPage() {
-  const { selectedChannelId } = useStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [dragOver, setDragOver] = useState(false);
-  const [uploadsState, setUploadsState] = useState<VideoUpload[]>([]);
-  const [date, setDate] = useState<Date | undefined>(new Date());
-
-  // Fetch uploads data
-  const { data: uploads } = useQuery({
-    queryKey: ['uploads', selectedChannelId],
-    queryFn: () => fetchUploads(selectedChannelId),
-    staleTime: 1000 * 60 * 60, // 1 hour
-  });
-
-  useEffect(() => {
-    if (uploads) {
-      setUploadsState(uploads);
-    }
-  }, [uploads]);
-
+  const [isDragging, setIsDragging] = useState(false);
+  
   // Simulate loading state
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -48,112 +27,23 @@ export default function UploadPage() {
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    setDragOver(true);
+    setIsDragging(true);
   };
 
   const handleDragLeave = () => {
-    setDragOver(false);
+    setIsDragging(false);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    setDragOver(false);
+    setIsDragging(false);
+    // Handle file upload logic here
+    console.log("File(s) dropped");
     
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileUpload(files);
-    }
+    // Prevent default behavior (Prevent file from being opened)
+    e.stopPropagation();
   };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileUpload(files);
-    }
-  };
-
-  const handleFileUpload = (files: FileList) => {
-    // Mock file upload
-    const file = files[0];
-    
-    // Create new upload object
-    const newUpload: VideoUpload = {
-      id: `vid${Math.floor(Math.random() * 1000)}`,
-      title: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension
-      channelId: selectedChannelId || 'UC123456789',
-      channelTitle: 'Tech With Dark Hammer',
-      thumbnail: 'https://via.placeholder.com/120x68',
-      status: 'uploading',
-      progress: 0,
-      publishAt: null,
-      privacy: 'unlisted'
-    };
-    
-    // Add to state
-    setUploadsState(prev => [newUpload, ...prev]);
-    
-    // Show toast
-    toast.success(`Upload started: ${file.name}`);
-    
-    // Simulate upload progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.floor(Math.random() * 10) + 5;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        
-        // Update state when complete
-        setUploadsState(prev => 
-          prev.map(u => 
-            u.id === newUpload.id 
-              ? { ...u, status: 'scheduled', progress: 100, publishAt: new Date().toISOString() }
-              : u
-          )
-        );
-        
-        toast.success(`Upload complete: ${file.name}`);
-      } else {
-        // Update progress
-        setUploadsState(prev => 
-          prev.map(u => 
-            u.id === newUpload.id 
-              ? { ...u, progress }
-              : u
-          )
-        );
-      }
-    }, 500);
-  };
-
-  const handleUpdateMetadata = (id: string, field: string, value: string) => {
-    setUploadsState(prev => 
-      prev.map(u => 
-        u.id === id 
-          ? { ...u, [field]: value }
-          : u
-      )
-    );
-    toast.success("Metadata updated successfully");
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'queued':
-        return <Badge variant="outline">Queued</Badge>;
-      case 'uploading':
-        return <Badge variant="secondary">Uploading</Badge>;
-      case 'scheduled':
-        return <Badge variant="primary">Scheduled</Badge>;
-      case 'published':
-        return <Badge variant="default">Published</Badge>;
-      case 'error':
-        return <Badge variant="destructive">Error</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
+  
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -164,222 +54,258 @@ export default function UploadPage() {
       </div>
     );
   }
-
+  
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
       <main className="flex-1 p-6 overflow-auto">
         <div className="space-y-8">
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Upload & Schedule</h1>
+              <p className="text-muted-foreground">Upload videos and schedule them for publishing.</p>
+            </div>
+            <div>
+              <Button
+                className="w-full sm:w-auto"
+                onClick={() => {}}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                View Calendar
+              </Button>
+            </div>
+          </div>
+          
           {/* Upload Area */}
+          <div
+            className={`border-2 border-dashed rounded-lg p-12 text-center ${
+              isDragging ? "border-primary bg-primary/10" : "border-border"
+            } transition-all duration-200`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <UploadCloud className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-medium">Drag & Drop Video Files</h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Upload MP4, MOV, or AVI files up to 12GB. Your videos will be securely
+                stored and ready for publishing.
+              </p>
+              <div className="flex gap-4">
+                <Button>
+                  <UploadCloud className="mr-2 h-4 w-4" />
+                  Select Files
+                </Button>
+                <Button variant="outline">
+                  Import from Google Drive
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Recent Uploads */}
           <Card>
             <CardHeader>
-              <CardTitle>Upload & Schedule</CardTitle>
-              <CardDescription>
-                Drag and drop your video files to upload them to YouTube
-              </CardDescription>
+              <CardTitle>Recent Uploads</CardTitle>
+              <CardDescription>Manage your recent video uploads and their publishing status.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div 
-                className={`border-2 border-dashed rounded-lg p-12 text-center ${
-                  dragOver ? 'border-primary bg-primary/5' : 'border-border'
-                } transition-colors`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <div className="flex flex-col items-center justify-center space-y-4">
-                  <div className="rounded-full p-3 bg-primary/10">
-                    <UploadCloud className="h-10 w-10 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium">Drag videos here</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Support for MP4, MOV, AVI up to 128GB
-                    </p>
-                  </div>
-                  <span className="text-sm text-muted-foreground">OR</span>
-                  <Button
-                    variant="outline"
-                    onClick={() => document.getElementById('file-upload')?.click()}
-                  >
-                    Browse Files
-                  </Button>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    accept="video/*"
-                    className="hidden"
-                    onChange={handleFileSelect}
-                  />
-                </div>
-              </div>
-
-              {/* Recent Uploads */}
-              <div className="mt-8">
-                <h3 className="text-lg font-medium mb-4">Recent Uploads</h3>
-                <div className="space-y-4">
-                  {uploadsState.map((upload) => (
-                    <div key={upload.id} className="border border-border rounded-lg overflow-hidden">
-                      <div className="p-4">
-                        <div className="flex items-start gap-4">
-                          <img 
-                            src={upload.thumbnail} 
-                            alt={upload.title}
-                            className="w-[120px] h-[68px] object-cover rounded"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-medium truncate">{upload.title}</h4>
-                              {getStatusBadge(upload.status)}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {upload.channelTitle}
-                            </p>
-                            {upload.status === 'uploading' && (
-                              <div className="mt-2">
-                                <Progress value={upload.progress} className="h-2" />
-                                <span className="text-xs text-muted-foreground mt-1">
-                                  {upload.progress}% complete
-                                </span>
-                              </div>
-                            )}
-                            {upload.status === 'scheduled' && (
-                              <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                                <Calendar className="w-4 h-4 mr-1" />
-                                <span>
-                                  {upload.publishAt ? 
-                                    new Date(upload.publishAt).toLocaleString() : 
-                                    'Not scheduled'}
-                                </span>
-                              </div>
-                            )}
-                          </div>
+              <div className="space-y-6">
+                {/* Upload Item 1 */}
+                <div className="border rounded-md p-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="w-full sm:w-48 aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                      <img
+                        src="https://images.unsplash.com/photo-1591267990532-e5bdb1b0ceb8?q=80&w=320&auto=format"
+                        alt="Video thumbnail"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row justify-between gap-2">
+                        <div>
+                          <Badge variant="default">SCHEDULED</Badge>
+                          <h4 className="font-semibold text-lg mt-2">10 Hidden Features in VS Code You Need to Know</h4>
+                          <p className="text-muted-foreground text-sm">Scheduled for June 12, 2025 at 9:00 AM</p>
+                        </div>
+                        <div className="flex gap-2 sm:flex-col items-start">
+                          <Button variant="outline" size="sm" className="h-8">
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Reschedule
+                          </Button>
+                          <Button variant="outline" size="sm" className="h-8">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Edit
+                          </Button>
                         </div>
                       </div>
                       
-                      {/* Metadata Tabs */}
-                      {upload.status !== 'published' && (
-                        <div className="border-t border-border">
-                          <Tabs defaultValue="basic">
-                            <div className="px-4 pt-2">
-                              <TabsList className="w-full justify-start">
-                                <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                                <TabsTrigger value="schedule">Schedule</TabsTrigger>
-                              </TabsList>
-                            </div>
-                            
-                            <TabsContent value="basic" className="p-4 pt-2 space-y-4">
-                              <div className="space-y-2">
-                                <Label htmlFor={`title-${upload.id}`}>Title</Label>
-                                <Input 
-                                  id={`title-${upload.id}`} 
-                                  value={upload.title}
-                                  onChange={(e) => handleUpdateMetadata(upload.id, 'title', e.target.value)}
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor={`description-${upload.id}`}>Description</Label>
-                                <Textarea 
-                                  id={`description-${upload.id}`} 
-                                  placeholder="Add a description..."
-                                  className="min-h-[100px]"
-                                />
-                              </div>
-                              <div className="flex flex-wrap gap-4">
-                                <div className="space-y-2 min-w-[200px]">
-                                  <Label htmlFor={`privacy-${upload.id}`}>Privacy</Label>
-                                  <Select 
-                                    defaultValue={upload.privacy}
-                                    onValueChange={(value) => handleUpdateMetadata(upload.id, 'privacy', value)}
-                                  >
-                                    <SelectTrigger id={`privacy-${upload.id}`} className="w-full">
-                                      <SelectValue placeholder="Select privacy" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="public">Public</SelectItem>
-                                      <SelectItem value="unlisted">Unlisted</SelectItem>
-                                      <SelectItem value="private">Private</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                            </TabsContent>
-                            
-                            <TabsContent value="schedule" className="p-4 pt-2">
-                              <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-                                <div>
-                                  <Label className="block mb-2">Publish Date</Label>
-                                  <div className="border border-border rounded-md p-3">
-                                    <CalendarComponent
-                                      mode="single"
-                                      selected={date}
-                                      onSelect={setDate}
-                                      className="pointer-events-auto rounded-md"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="space-y-4">
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`time-${upload.id}`}>Publish Time</Label>
-                                    <div className="flex items-center">
-                                      <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
-                                      <Input 
-                                        id={`time-${upload.id}`}
-                                        type="time"
-                                        defaultValue="12:00"
-                                      />
-                                    </div>
-                                  </div>
-                                  <Button 
-                                    className="w-full mt-4"
-                                    onClick={() => {
-                                      if (date) {
-                                        const newDate = new Date(date);
-                                        handleUpdateMetadata(upload.id, 'publishAt', newDate.toISOString());
-                                        handleUpdateMetadata(upload.id, 'status', 'scheduled');
-                                        toast.success("Video scheduled successfully");
-                                      }
-                                    }}
-                                  >
-                                    Schedule Video
-                                  </Button>
-                                </div>
-                              </div>
-                            </TabsContent>
-                          </Tabs>
+                      <div className="mt-4 space-y-3">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src="https://github.com/shadcn.png" />
+                            <AvatarFallback>CN</AvatarFallback>
+                          </Avatar>
+                          <span>Test Channel</span>
                         </div>
-                      )}
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-1" />
+                            <span>12:42</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Tag className="h-4 w-4 mr-1" />
+                            <span>coding, tutorial, tech</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                  
-                  {uploadsState.length === 0 && (
-                    <div className="text-center py-12 text-muted-foreground">
-                      No uploads yet. Drag and drop videos to get started.
+                  </div>
+                </div>
+                
+                {/* Upload Item 2 */}
+                <div className="border rounded-md p-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="w-full sm:w-48 aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                      <img
+                        src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=320&auto=format"
+                        alt="Video thumbnail"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  )}
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row justify-between gap-2">
+                        <div>
+                          <Badge variant="secondary">UPLOADING</Badge>
+                          <h4 className="font-semibold text-lg mt-2">Building a Full-Stack App with React and Node.js</h4>
+                          <div className="mt-2">
+                            <Progress value={68} className="h-2" />
+                            <p className="text-xs text-muted-foreground mt-1">68% - 2 minutes remaining</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 sm:flex-col items-start">
+                          <Button variant="default" size="sm" className="h-8">
+                            <Check className="h-4 w-4 mr-2" />
+                            Complete
+                          </Button>
+                          <Button variant="outline" size="sm" className="h-8">
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 space-y-3">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src="https://github.com/shadcn.png" />
+                            <AvatarFallback>CN</AvatarFallback>
+                          </Avatar>
+                          <span>Test Channel</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-1" />
+                            <span>42:18</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Tag className="h-4 w-4 mr-1" />
+                            <span>programming, webdev, coding</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Calendar View */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload Calendar</CardTitle>
-              <CardDescription>
-                View and manage all scheduled uploads
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px] flex items-center justify-center border border-border rounded-lg p-4">
-                <div className="text-center text-muted-foreground">
-                  <Calendar className="h-10 w-10 mx-auto mb-2 opacity-60" />
-                  <h3 className="text-lg font-medium">Calendar View</h3>
-                  <p className="max-w-md">
-                    Drag and drop scheduled videos to change their publish dates. 
-                    Connect channels to see your upload schedule.
-                  </p>
-                </div>
+                
+                {/* Video Metadata Form */}
+                <Card className="mt-8">
+                  <CardHeader>
+                    <CardTitle>Video Details</CardTitle>
+                    <CardDescription>Edit the metadata for your video before publishing.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form className="space-y-6">
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="title">Title</Label>
+                          <Input
+                            id="title"
+                            placeholder="Enter a catchy title for your video"
+                            defaultValue="Building a Full-Stack App with React and Node.js"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="description">Description</Label>
+                          <Textarea
+                            id="description"
+                            placeholder="Enter a detailed description of your video"
+                            rows={5}
+                            defaultValue="In this comprehensive tutorial, we'll build a complete full-stack application using React for the frontend and Node.js for the backend. We'll cover authentication, database integration, and deployment."
+                          />
+                        </div>
+                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="tags">Tags (comma separated)</Label>
+                            <Input
+                              id="tags"
+                              placeholder="programming, webdev, coding"
+                              defaultValue="programming, webdev, coding"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="privacy">Privacy Setting</Label>
+                            <Select defaultValue="public">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select privacy setting" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="public">Public</SelectItem>
+                                <SelectItem value="unlisted">Unlisted</SelectItem>
+                                <SelectItem value="private">Private</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="category">Category</Label>
+                            <Select defaultValue="tech">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="tech">Science & Technology</SelectItem>
+                                <SelectItem value="education">Education</SelectItem>
+                                <SelectItem value="entertainment">Entertainment</SelectItem>
+                                <SelectItem value="gaming">Gaming</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="channel">Channel</Label>
+                            <Select defaultValue="channel1">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select channel" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="channel1">Test Channel</SelectItem>
+                                <SelectItem value="channel2">Secondary Channel</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-2 mt-4">
+                          <Button variant="outline">Save as Draft</Button>
+                          <Button>Schedule Publication</Button>
+                        </div>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>

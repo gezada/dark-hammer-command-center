@@ -5,10 +5,17 @@ import { Button } from "./ui/button";
 import { Command, Bell, User } from "lucide-react";
 import { fetchAnalytics } from "@/lib/api";
 import { ComboboxDemo } from "./ChannelSelector";
+import { useQuery } from "@tanstack/react-query";
 
 export function AppHeader() {
   const { selectedChannelId, dateRange, setDateRange } = useStore();
-  const { quota } = fetchAnalytics(selectedChannelId, dateRange) as any;
+  
+  // Use React Query to safely fetch analytics data
+  const { data: analytics } = useQuery({
+    queryKey: ['headerAnalytics', selectedChannelId, dateRange],
+    queryFn: () => fetchAnalytics(selectedChannelId, dateRange),
+    staleTime: 1000 * 60 * 60 * 6, // 6 hours
+  });
 
   const handleOpenCommandPalette = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,10 +75,10 @@ export function AppHeader() {
           <div className="w-32 h-2 bg-muted rounded-full">
             <div 
               className="h-full bg-primary rounded-full" 
-              style={{ width: `${quota.used}%` }}
+              style={{ width: `${analytics?.quota?.used ?? 0}%` }}
             />
           </div>
-          <span className="ml-2">{100 - quota.used}% left</span>
+          <span className="ml-2">{100 - (analytics?.quota?.used ?? 0)}% left</span>
         </div>
         <ThemeToggle />
         <Button variant="ghost" size="icon">
