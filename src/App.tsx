@@ -10,32 +10,15 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { AppSidebar } from "@/components/AppSidebar";
 
 // Pages
-import LandingPage from "./pages/LandingPage";
-import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
 import UploadPage from "./pages/UploadPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import CommentsPage from "./pages/CommentsPage";
 import ChannelsPage from "./pages/ChannelsPage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-
-// Protected route wrapper
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useStore();
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
-  }
-  
-  return (
-    <div className="flex">
-      <AppSidebar />
-      {children}
-    </div>
-  );
-};
 
 const App = () => {
   const { theme } = useStore();
@@ -53,17 +36,18 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <CommandPalette />
+          <AppSidebar />
           <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/auth" element={<AuthPage />} />
+            {/* Redirect root to dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             
-            {/* Protected routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-            <Route path="/upload" element={<ProtectedRoute><UploadPage /></ProtectedRoute>} />
-            <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-            <Route path="/comments" element={<ProtectedRoute><CommentsPage /></ProtectedRoute>} />
-            <Route path="/channels" element={<ProtectedRoute><ChannelsPage /></ProtectedRoute>} />
+            {/* Main routes */}
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/upload" element={<UploadPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/comments" element={<CommentsPage />} />
+            <Route path="/channels" element={<ChannelsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             
             {/* 404 page */}
             <Route path="*" element={<NotFound />} />

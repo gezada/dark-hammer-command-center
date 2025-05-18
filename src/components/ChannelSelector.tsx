@@ -49,7 +49,7 @@ export function ComboboxDemo() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[240px] justify-between text-left"
+          className="w-full justify-between text-left"
         >
           {selectedChannel ? (
             <div className="flex items-center">
@@ -60,15 +60,15 @@ export function ComboboxDemo() {
               <span className="truncate">{selectedChannel.title}</span>
             </div>
           ) : (
-            "All Channels"
+            "Todos os Canais"
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[240px] p-0">
         <Command>
-          <CommandInput placeholder="Search channel..." />
-          <CommandEmpty>No channel found.</CommandEmpty>
+          <CommandInput placeholder="Buscar canal..." />
+          <CommandEmpty>Nenhum canal encontrado.</CommandEmpty>
           <CommandGroup>
             <CommandItem
               key="all-channels"
@@ -81,7 +81,7 @@ export function ComboboxDemo() {
                   !value ? "opacity-100" : "opacity-0"
                 )}
               />
-              All Channels
+              Todos os Canais
             </CommandItem>
             {/* Make sure we safely render connected channels */}
             {connectedChannels && connectedChannels.map((channel) => (
