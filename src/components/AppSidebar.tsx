@@ -1,25 +1,33 @@
 
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Upload, 
   BarChart2, 
   MessageSquare, 
-  Settings, 
-  ChevronLeft,
-  ChevronRight,
+  Settings,
+  LogIn,
+  Menu,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { toast } from "sonner";
 
 export function AppSidebar() {
-  const { sidebarCollapsed, toggleSidebar } = useStore();
+  const { sidebarCollapsed, toggleSidebar, setIsAuthenticated } = useStore();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    navigate("/");
+    toast.success("Logout realizado com sucesso");
   };
 
   const menuItems = [
@@ -50,17 +58,25 @@ export function AppSidebar() {
       "fixed inset-y-0 left-0 z-20 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300",
       sidebarCollapsed ? "w-[60px]" : "w-[240px]"
     )}>
-      <div className="flex items-center justify-center h-16 border-b border-sidebar-border">
+      <div className="flex items-center justify-between h-16 border-b border-sidebar-border px-4">
         {!sidebarCollapsed && (
-          <Link to="/" className="flex items-center">
+          <Link to="/dashboard" className="flex items-center">
             <h1 className="text-xl font-bold text-primary">Dark Hammer</h1>
           </Link>
         )}
         {sidebarCollapsed && (
-          <Link to="/" className="flex items-center">
+          <Link to="/dashboard" className="flex items-center">
             <span className="text-xl font-bold text-primary">DH</span>
           </Link>
         )}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleSidebar} 
+          className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
       </div>
       
       <nav className="flex-1 space-y-1 px-2 py-4">
@@ -107,14 +123,34 @@ export function AppSidebar() {
       </nav>
       
       <div className="p-2 border-t border-sidebar-border">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={toggleSidebar} 
-          className="w-full flex items-center justify-center text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-        >
-          {sidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-        </Button>
+        <TooltipProvider>
+          {sidebarCollapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                >
+                  <LogIn className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                Logout
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button 
+              variant="ghost" 
+              onClick={handleLogout}
+              className="w-full flex items-center justify-between text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            >
+              <span>Logout</span>
+              <LogIn className="h-5 w-5" />
+            </Button>
+          )}
+        </TooltipProvider>
       </div>
     </div>
   );

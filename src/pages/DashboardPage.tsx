@@ -43,7 +43,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-6 overflow-auto ml-[60px] md:ml-[240px] transition-all duration-300">
         <div className="space-y-8">
           {/* KPI Cards */}
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-5">
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                       <XAxis dataKey="date" />
                       <YAxis />
                       <Tooltip />
-                      <Area type="monotone" dataKey="value" stroke="#8B5CF6" fill="#8B5CF680" />
+                      <Area type="monotone" dataKey="value" stroke="#D32F2F" fill="#D32F2F80" />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -242,7 +242,7 @@ export default function DashboardPage() {
                       <XAxis dataKey="date" />
                       <YAxis />
                       <Tooltip />
-                      <Bar dataKey="value" fill="#8B5CF6" />
+                      <Bar dataKey="value" fill="#D32F2F" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -299,7 +299,7 @@ const CustomLineChart = ({ data, margin }: LineChartProps) => {
         <XAxis dataKey="date" />
         <YAxis />
         <Tooltip />
-        <Area type="monotone" dataKey="value" stroke="#8B5CF6" fill="#8B5CF620" />
+        <Area type="monotone" dataKey="value" stroke="#D32F2F" fill="#D32F2F20" />
       </AreaChart>
     </ResponsiveContainer>
   );
