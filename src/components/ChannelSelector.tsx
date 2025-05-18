@@ -21,7 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function ComboboxDemo() {
   const [open, setOpen] = useState(false);
-  const { channels, selectedChannelId, setSelectedChannelId } = useStore();
+  const { channels = [], selectedChannelId, setSelectedChannelId } = useStore();
   const [value, setValue] = useState(selectedChannelId || "");
   
   // Update local state when global state changes
@@ -29,8 +29,11 @@ export function ComboboxDemo() {
     setValue(selectedChannelId || "");
   }, [selectedChannelId]);
   
-  // If no channels or none are connected, ensure we handle it properly
-  const connectedChannels = channels?.filter(c => c?.isConnected) || [];
+  // Ensure channels is always an array, even if undefined
+  const safeChannels = Array.isArray(channels) ? channels : [];
+  
+  // Filter connected channels with null check
+  const connectedChannels = safeChannels.filter(c => c && c.isConnected) || [];
   const hasConnectedChannels = connectedChannels.length > 0;
   
   const handleSelect = (currentValue: string) => {
@@ -40,7 +43,7 @@ export function ComboboxDemo() {
   };
   
   // Make sure we safely find the channel
-  const selectedChannel = channels?.find(c => c?.id === value);
+  const selectedChannel = safeChannels.find(c => c && c.id === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -83,8 +86,8 @@ export function ComboboxDemo() {
               />
               Todos os Canais
             </CommandItem>
-            {/* Make sure we safely render connected channels */}
-            {connectedChannels && connectedChannels.map((channel) => (
+            {/* Safe rendering of connected channels with null checks */}
+            {connectedChannels.map((channel) => channel && (
               <CommandItem
                 key={channel.id}
                 value={channel.id}
