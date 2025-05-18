@@ -67,8 +67,28 @@ export function AppSidebar() {
         
         <nav className="flex-1 space-y-1 px-2 py-4">
           {menuItems.map((item) => (
-            <Tooltip key={item.path} delayDuration={0}>
-              <TooltipTrigger asChild>
+            <div key={item.path}>
+              {sidebarCollapsed ? (
+                <Tooltip key={item.path} delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={item.path}
+                      className={cn(
+                        "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                        isActive(item.path)
+                          ? "bg-primary text-primary-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5 mx-auto" />
+                      <span className="sr-only">{item.title}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {item.title}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
                 <Link
                   to={item.path}
                   className={cn(
@@ -78,14 +98,11 @@ export function AppSidebar() {
                       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <item.icon className={cn("h-5 w-5", sidebarCollapsed ? "mx-auto" : "mr-2")} />
-                  {!sidebarCollapsed && <span>{item.title}</span>}
+                  <item.icon className="h-5 w-5 mr-2" />
+                  <span>{item.title}</span>
                 </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right" className={cn(!sidebarCollapsed && "hidden")}>
-                {item.title}
-              </TooltipContent>
-            </Tooltip>
+              )}
+            </div>
           ))}
         </nav>
         
