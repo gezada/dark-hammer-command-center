@@ -29,8 +29,8 @@ export function ComboboxDemo() {
     setValue(selectedChannelId || "");
   }, [selectedChannelId]);
   
-  // If no connected channels, show "all channels"
-  const connectedChannels = channels.filter(c => c.isConnected);
+  // If no channels or none are connected, ensure we handle it properly
+  const connectedChannels = channels?.filter(c => c?.isConnected) || [];
   const hasConnectedChannels = connectedChannels.length > 0;
   
   const handleSelect = (currentValue: string) => {
@@ -39,7 +39,8 @@ export function ComboboxDemo() {
     setOpen(false);
   };
   
-  const selectedChannel = channels.find(c => c.id === value);
+  // Make sure we safely find the channel
+  const selectedChannel = channels?.find(c => c?.id === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -82,7 +83,8 @@ export function ComboboxDemo() {
               />
               All Channels
             </CommandItem>
-            {connectedChannels.map((channel) => (
+            {/* Make sure we safely render connected channels */}
+            {connectedChannels && connectedChannels.map((channel) => (
               <CommandItem
                 key={channel.id}
                 value={channel.id}
