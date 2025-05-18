@@ -18,9 +18,11 @@ import ChannelsPage from "./pages/ChannelsPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
+// Create QueryClient outside the component
 const queryClient = new QueryClient();
 
 const App = () => {
+  // Use the hook inside the component body
   const { theme } = useStore();
   
   // Apply theme on initial load
@@ -35,23 +37,25 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <CommandPalette />
-          <AppSidebar />
-          <Routes>
-            {/* Redirect root to dashboard */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            
-            {/* Main routes */}
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/upload" element={<UploadPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/comments" element={<CommentsPage />} />
-            <Route path="/channels" element={<ChannelsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            
-            {/* 404 page */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <div className="flex w-full"> {/* Added a wrapper with w-full to ensure proper layout */}
+            <CommandPalette />
+            <AppSidebar />
+            <Routes>
+              {/* Redirect root to dashboard */}
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              
+              {/* Main routes */}
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/upload" element={<UploadPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/comments" element={<CommentsPage />} />
+              <Route path="/channels" element={<ChannelsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              
+              {/* 404 page */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

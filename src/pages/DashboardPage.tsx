@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -127,7 +126,7 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {analytics?.subscribers.toLocaleString()}
+                    {getSubscriberData(analytics)?.toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground flex items-center">
                     <ArrowUp className="h-3 w-3 text-green-500 mr-1" />
@@ -427,7 +426,7 @@ export default function DashboardPage() {
                 <div className="h-[240px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
-                      data={analytics?.charts.subscribers || []}
+                      data={getSubscriberData(analytics) || []}
                       margin={{
                         top: 10,
                         right: 10,
@@ -478,3 +477,8 @@ const CustomLineChart = ({ data, margin }: LineChartProps) => {
     </ResponsiveContainer>
   );
 };
+
+const getSubscriberData = (data: any) => {
+  // If subscribers exists, use it, otherwise return an empty array
+  return data && data.subscribers ? data.subscribers : [];
+}
