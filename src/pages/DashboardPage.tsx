@@ -55,13 +55,15 @@ export default function DashboardPage() {
                     <CardTitle className="text-sm font-medium">
                       VIEWS TODAY
                     </CardTitle>
-                    <TooltipTrigger asChild>
-                      <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Total number of views in the last 24 hours</p>
+                      </TooltipContent>
+                    </UITooltip>
                   </div>
-                  <TooltipContent>
-                    <p>Total number of views in the last 24 hours</p>
-                  </TooltipContent>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
@@ -80,13 +82,15 @@ export default function DashboardPage() {
                     <CardTitle className="text-sm font-medium">
                       SUBSCRIBERS
                     </CardTitle>
-                    <TooltipTrigger asChild>
-                      <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Total subscribers across selected channels</p>
+                      </TooltipContent>
+                    </UITooltip>
                   </div>
-                  <TooltipContent>
-                    <p>Total subscribers across selected channels</p>
-                  </TooltipContent>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
@@ -105,13 +109,15 @@ export default function DashboardPage() {
                     <CardTitle className="text-sm font-medium">
                       WATCH TIME (HRS)
                     </CardTitle>
-                    <TooltipTrigger asChild>
-                      <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Total hours watched in the selected period</p>
+                      </TooltipContent>
+                    </UITooltip>
                   </div>
-                  <TooltipContent>
-                    <p>Total hours watched in the selected period</p>
-                  </TooltipContent>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
@@ -130,13 +136,15 @@ export default function DashboardPage() {
                     <CardTitle className="text-sm font-medium">
                       REVENUE ESTIMATE
                     </CardTitle>
-                    <TooltipTrigger asChild>
-                      <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Estimated revenue based on views and CPM</p>
+                      </TooltipContent>
+                    </UITooltip>
                   </div>
-                  <TooltipContent>
-                    <p>Estimated revenue based on views and CPM</p>
-                  </TooltipContent>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
@@ -155,13 +163,15 @@ export default function DashboardPage() {
                     <CardTitle className="text-sm font-medium">
                       AVG. CTR
                     </CardTitle>
-                    <TooltipTrigger asChild>
-                      <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Average Click-Through Rate for impressions</p>
+                      </TooltipContent>
+                    </UITooltip>
                   </div>
-                  <TooltipContent>
-                    <p>Average Click-Through Rate for impressions</p>
-                  </TooltipContent>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
