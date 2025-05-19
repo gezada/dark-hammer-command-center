@@ -22,8 +22,8 @@ import NotFound from "./pages/NotFound";
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
 
-// Create a ThemeProvider component to handle theme application
-const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+const App = () => {
+  // Use the hook inside the component body
   const { theme } = useStore();
   
   // Apply theme on initial load
@@ -32,40 +32,34 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     document.documentElement.classList.add(theme);
   }, [theme]);
 
-  return <>{children}</>;
-};
-
-const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <ThemeProvider>
-            <div className="flex w-full overflow-hidden min-h-screen">
-              <CommandPalette />
-              <AppSidebar />
-              <div className="flex flex-col flex-grow">
-                <Routes>
-                  {/* Redirect root to dashboard */}
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                  
-                  {/* Main routes */}
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/upload" element={<UploadPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
-                  <Route path="/comments" element={<CommentsPage />} />
-                  <Route path="/channels" element={<ChannelsPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/schedule" element={<SchedulePage />} />
-                  
-                  {/* 404 page */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </div>
+          <div className="flex w-full overflow-hidden min-h-screen">
+            <CommandPalette />
+            <AppSidebar />
+            <div className="flex flex-col flex-grow">
+              <Routes>
+                {/* Redirect root to dashboard */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                
+                {/* Main routes */}
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/upload" element={<UploadPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="/comments" element={<CommentsPage />} />
+                <Route path="/channels" element={<ChannelsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/schedule" element={<SchedulePage />} />
+                
+                {/* 404 page */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </div>
-          </ThemeProvider>
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
