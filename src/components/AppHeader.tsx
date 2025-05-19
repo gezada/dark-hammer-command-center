@@ -29,14 +29,14 @@ export function AppHeader({ showFilters = true }: AppHeaderProps) {
           </div>
         )}
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link to="/upload">
-            <Button variant="outline" size="sm" className="gap-1">
+            <Button variant="outline" size="sm" className="gap-1 ml-1">
               <Upload className="h-4 w-4" />
               Upload
             </Button>
           </Link>
-          <ThemeToggle />
         </div>
       </div>
     </header>

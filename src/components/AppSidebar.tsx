@@ -108,15 +108,15 @@ export function AppSidebar() {
           size="icon" 
           onClick={toggleSidebar} 
           className={cn(
-            "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-            sidebarCollapsed ? "mx-auto w-10 h-10" : ""
+            "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground p-2.5",
+            !sidebarCollapsed ? "ml-auto" : "mx-auto w-10 h-10"
           )}
         >
           <Menu className="h-5 w-5" />
         </Button>
       </div>
       
-      <nav className="flex-1 space-y-1 px-2 py-4 overflow-y-auto">
+      <nav className="flex-1 space-y-1.5 px-2 py-5 overflow-y-auto">
         <TooltipProvider>
           {menuItems.map((item) => (
             <div key={item.path}>
@@ -126,7 +126,7 @@ export function AppSidebar() {
                     <Link
                       to={item.path}
                       className={cn(
-                        "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors relative",
+                        "flex items-center px-4 py-3.5 rounded-md text-sm font-medium transition-colors relative",
                         isActive(item.path)
                           ? "bg-primary text-primary-foreground"
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -141,7 +141,7 @@ export function AppSidebar() {
                       <span className="sr-only">{item.title}</span>
                     </Link>
                   </TooltipTrigger>
-                  <TooltipContent side="right">
+                  <TooltipContent side="right" className="text-sm py-1.5">
                     {item.title}
                   </TooltipContent>
                 </Tooltip>
@@ -149,13 +149,13 @@ export function AppSidebar() {
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors relative",
+                    "flex items-center px-4 py-3.5 rounded-md text-sm font-medium transition-colors relative",
                     isActive(item.path)
                       ? "bg-primary text-primary-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <item.icon className="h-5 w-5 mr-2" />
+                  <item.icon className="h-5 w-5 mr-3" />
                   <span>{item.title}</span>
                   {item.badge && (
                     <Badge className="ml-auto bg-primary text-white">
@@ -170,7 +170,7 @@ export function AppSidebar() {
       </nav>
       
       {/* Bottom menu items */}
-      <div className="p-2 space-y-2 mb-2 mt-auto">
+      <div className="p-2 space-y-2.5 mb-2 mt-auto">
         <TooltipProvider>
           {bottomMenuItems.map((item) => (
             <div key={item.path}>
@@ -180,7 +180,7 @@ export function AppSidebar() {
                     <Link
                       to={item.path}
                       className={cn(
-                        "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                        "flex items-center px-3 py-3.5 rounded-md text-sm font-medium transition-colors",
                         isActive(item.path)
                           ? "bg-primary text-primary-foreground"
                           : item.accentColor 
@@ -192,12 +192,12 @@ export function AppSidebar() {
                       <item.icon className={cn(
                         "h-5 w-5 mx-auto",
                         item.accentColor && !isActive(item.path) && "text-primary",
-                        isActive(item.path) && item.accentColor && "text-primary-foreground"
+                        isActive(item.path) && "text-primary-foreground"
                       )} />
                       <span className="sr-only">{item.title}</span>
                     </Link>
                   </TooltipTrigger>
-                  <TooltipContent side="right">
+                  <TooltipContent side="right" className="text-sm py-1.5">
                     {item.title}
                   </TooltipContent>
                 </Tooltip>
@@ -205,7 +205,7 @@ export function AppSidebar() {
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    "flex items-center px-4 py-3.5 rounded-md text-sm font-medium transition-colors",
                     isActive(item.path)
                       ? "bg-primary text-primary-foreground"
                       : item.accentColor 
@@ -215,7 +215,7 @@ export function AppSidebar() {
                   )}
                 >
                   <item.icon className={cn(
-                    "h-5 w-5 mr-2",
+                    "h-5 w-5 mr-3",
                     item.accentColor && !isActive(item.path) && "text-primary",
                     isActive(item.path) && item.accentColor && "text-primary-foreground"
                   )} />
@@ -228,10 +228,10 @@ export function AppSidebar() {
       </div>
       
       <div className="p-2 border-t border-sidebar-border">
-        <div className="flex items-center justify-between p-2 rounded-md">
-          {!sidebarCollapsed ? (
+        {!sidebarCollapsed && (
+          <div className="flex items-center justify-between p-3 rounded-md">
             <div className="flex items-center flex-1">
-              <Avatar className="h-8 w-8 mr-2">
+              <Avatar className="h-8 w-8 mr-3">
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>{userName?.[0] || "JD"}</AvatarFallback>
               </Avatar>
@@ -242,20 +242,21 @@ export function AppSidebar() {
                 variant="ghost" 
                 size="icon" 
                 onClick={handleLogout}
-                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-2"
+                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-2 p-2"
               >
                 <LogIn className="h-5 w-5" />
               </Button>
             </div>
-          ) : (
-            <div className="flex items-center justify-center w-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>{userName?.[0] || "JD"}</AvatarFallback>
-              </Avatar>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+        {sidebarCollapsed && (
+          <div className="flex items-center justify-center w-full py-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarFallback>{userName?.[0] || "JD"}</AvatarFallback>
+            </Avatar>
+          </div>
+        )}
       </div>
     </div>
   );
