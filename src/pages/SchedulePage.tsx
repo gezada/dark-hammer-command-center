@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ComboboxDemo } from "@/components/ChannelSelector";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function SchedulePage() {
   const { sidebarCollapsed, channels = [] } = useStore();
@@ -82,7 +81,7 @@ export default function SchedulePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader showFilters={false} />
-      <main className={`flex-1 p-6 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
+      <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
         <div className="max-w-6xl mx-auto">
           {/* Header and filters */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
@@ -124,46 +123,44 @@ export default function SchedulePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ScrollArea className="h-[400px] pr-4">
-                  {selectedDateVideos.length > 0 ? (
-                    <div className="space-y-4">
-                      {selectedDateVideos.map((video) => {
-                        const channel = getChannelForVideo(video.channelId);
-                        
-                        return (
-                          <div key={video.id} className="flex items-center p-3 border rounded-md hover:bg-accent cursor-pointer transition-colors">
-                            <img 
-                              src={video.thumbnail} 
-                              alt={video.title}
-                              className="w-[100px] h-[56px] rounded object-cover mr-4"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-sm truncate">{video.title}</h4>
-                              <div className="flex items-center mt-1">
-                                {channel && (
-                                  <div className="flex items-center text-xs text-muted-foreground mr-3">
-                                    <Avatar className="h-4 w-4 mr-1">
-                                      <AvatarImage src={channel.thumbnail} alt={channel.title} />
-                                      <AvatarFallback>{channel.title[0]}</AvatarFallback>
-                                    </Avatar>
-                                    <span>{channel.title}</span>
-                                  </div>
-                                )}
-                                <Badge variant="outline" className="text-xs">
-                                  {formatDateTime(new Date(video.date))}
-                                </Badge>
-                              </div>
+                {selectedDateVideos.length > 0 ? (
+                  <div className="space-y-4">
+                    {selectedDateVideos.map((video) => {
+                      const channel = getChannelForVideo(video.channelId);
+                      
+                      return (
+                        <div key={video.id} className="flex items-center p-3 border rounded-md hover:bg-accent cursor-pointer transition-colors">
+                          <img 
+                            src={video.thumbnail} 
+                            alt={video.title}
+                            className="w-[100px] h-[56px] rounded object-cover mr-4"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm truncate">{video.title}</h4>
+                            <div className="flex items-center mt-1">
+                              {channel && (
+                                <div className="flex items-center text-xs text-muted-foreground mr-3">
+                                  <Avatar className="h-4 w-4 mr-1">
+                                    <AvatarImage src={channel.thumbnail} alt={channel.title} />
+                                    <AvatarFallback>{channel.title[0]}</AvatarFallback>
+                                  </Avatar>
+                                  <span>{channel.title}</span>
+                                </div>
+                              )}
+                              <Badge variant="outline" className="text-xs">
+                                {formatDateTime(new Date(video.date))}
+                              </Badge>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">No videos scheduled for this date</p>
-                    </div>
-                  )}
-                </ScrollArea>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No videos scheduled for this date</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
