@@ -16,6 +16,7 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import CommentsPage from "./pages/CommentsPage";
 import ChannelsPage from "./pages/ChannelsPage";
 import SettingsPage from "./pages/SettingsPage";
+import SchedulePage from "./pages/SchedulePage";
 import NotFound from "./pages/NotFound";
 
 // Create QueryClient outside the component
@@ -52,6 +53,7 @@ const App = () => {
                 <Route path="/comments" element={<CommentsPage />} />
                 <Route path="/channels" element={<ChannelsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/schedule" element={<SchedulePage />} />
                 
                 {/* 404 page */}
                 <Route path="*" element={<NotFound />} />

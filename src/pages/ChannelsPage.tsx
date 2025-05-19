@@ -7,13 +7,39 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchUserChannels } from "@/lib/api";
 import { useStore, Channel } from "@/lib/store";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Link, Plus, Youtube } from "lucide-react";
+import { Check, Link, Plus, Youtube, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { v4 as uuidv4 } from 'uuid';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ChannelsPage() {
-  const { channels, addChannel, toggleChannelConnection } = useStore();
+  const { channels, addChannel, removeChannel, toggleChannelConnection, sidebarCollapsed } = useStore();
   const [isLoading, setIsLoading] = useState(true);
+  const [addChannelDialogOpen, setAddChannelDialogOpen] = useState(false);
+  const [channelUrl, setChannelUrl] = useState("");
+  const [channelToRemove, setChannelToRemove] = useState<string | null>(null);
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
 
   // Fetch channels data
   const { data } = useQuery({
@@ -38,18 +64,62 @@ export default function ChannelsPage() {
 
   const handleToggleChannel = (channelId: string) => {
     toggleChannelConnection(channelId);
-    toast.success("Channel connection status updated");
+    toast.success("Canal atualizado com sucesso");
   };
 
   const handleAddNewChannel = () => {
-    toast.info("This would connect a new YouTube channel through OAuth");
+    setAddChannelDialogOpen(true);
+  };
+  
+  const handleChannelUrlSubmit = () => {
+    if (!channelUrl.trim()) {
+      toast.error("Por favor, insira uma URL válida do canal");
+      return;
+    }
+    
+    // Extract channel ID from URL (this is a simplified version)
+    let channelId = "";
+    try {
+      const url = new URL(channelUrl);
+      const pathParts = url.pathname.split('/');
+      channelId = pathParts[pathParts.length - 1] || uuidv4().substring(0, 8);
+    } catch {
+      channelId = uuidv4().substring(0, 8);
+    }
+    
+    // Create a new channel with dummy data
+    const newChannel: Channel = {
+      id: channelId,
+      title: `Canal ${channels.length + 1}`,
+      thumbnail: `https://placehold.co/80?text=${channelId[0]}`,
+      isConnected: true
+    };
+    
+    addChannel(newChannel);
+    setChannelUrl("");
+    setAddChannelDialogOpen(false);
+    toast.success("Canal adicionado com sucesso");
+  };
+  
+  const openRemoveDialog = (channelId: string) => {
+    setChannelToRemove(channelId);
+    setRemoveDialogOpen(true);
+  };
+  
+  const confirmRemoveChannel = () => {
+    if (channelToRemove) {
+      removeChannel(channelToRemove);
+      toast.success("Canal removido com sucesso");
+    }
+    setRemoveDialogOpen(false);
+    setChannelToRemove(null);
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <AppHeader />
-        <main className="flex-1 p-6 overflow-auto">
+        <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
           <div className="max-w-4xl mx-auto space-y-8">
             <Skeleton className="h-10 w-48" />
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
@@ -66,7 +136,7 @@ export default function ChannelsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
-      <main className="flex-1 p-6 overflow-auto">
+      <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
         <div className="max-w-4xl mx-auto space-y-8">
           <div>
             <h1 className="text-2xl font-bold mb-2">Manage YouTube Channels</h1>
@@ -79,15 +149,25 @@ export default function ChannelsPage() {
             {channels.map((channel) => (
               <Card key={channel.id}>
                 <CardHeader className="pb-2">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={channel.thumbnail} alt={channel.title} />
-                      <AvatarFallback>{channel.title[0]}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle>{channel.title}</CardTitle>
-                      <CardDescription>ID: {channel.id}</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={channel.thumbnail} alt={channel.title} />
+                        <AvatarFallback>{channel.title[0]}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <CardTitle>{channel.title}</CardTitle>
+                        <CardDescription>ID: {channel.id}</CardDescription>
+                      </div>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openRemoveDialog(channel.id)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -142,6 +222,52 @@ export default function ChannelsPage() {
           </div>
         </div>
       </main>
+      
+      {/* Add Channel Dialog */}
+      <Dialog open={addChannelDialogOpen} onOpenChange={setAddChannelDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add YouTube Channel</DialogTitle>
+            <DialogDescription>
+              Enter the URL of the YouTube channel you want to connect
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="channel-url">Channel URL</Label>
+            <Input
+              id="channel-url"
+              placeholder="https://www.youtube.com/channel/..."
+              value={channelUrl}
+              onChange={(e) => setChannelUrl(e.target.value)}
+              className="mt-2"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddChannelDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleChannelUrlSubmit}>Add Channel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Remove Channel Alert Dialog */}
+      <AlertDialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Channel</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this channel? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveChannel} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Yes, remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

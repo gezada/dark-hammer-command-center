@@ -11,6 +11,7 @@ import {
   LogIn,
   Menu,
   PlusCircle,
+  Calendar,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
@@ -41,22 +42,49 @@ export function AppSidebar() {
       title: 'Dashboard',
       icon: LayoutDashboard,
       path: '/dashboard',
-    },
-    {
-      title: 'Upload & Schedule',
-      icon: Upload,
-      path: '/upload',
+      order: 1,
     },
     {
       title: 'Analytics',
       icon: BarChart2,
       path: '/analytics',
+      order: 2,
     },
     {
       title: 'Comments',
       icon: MessageSquare,
       path: '/comments',
       badge: unreadComments,
+      order: 3,
+    },
+    {
+      title: 'Schedule',
+      icon: Calendar,
+      path: '/schedule',
+      order: 4,
+    },
+  ];
+
+  const bottomMenuItems = [
+    {
+      title: 'Upload',
+      icon: Upload,
+      path: '/upload',
+      highlighted: true,
+      order: 5,
+    },
+    {
+      title: 'Adicionar Canal',
+      icon: PlusCircle,
+      path: '/channels',
+      accentColor: true,
+      order: 6,
+    },
+    {
+      title: 'Configurações',
+      icon: Settings,
+      path: '/settings',
+      order: 7,
     },
   ];
 
@@ -67,19 +95,21 @@ export function AppSidebar() {
         sidebarCollapsed ? "w-[60px]" : "w-[240px]"
       )}
     >
-      <div className="flex items-center justify-center h-16 border-b border-sidebar-border px-4">
+      <div className="flex items-center justify-between h-16 border-b border-sidebar-border px-4">
         {!sidebarCollapsed ? (
           <Link to="/dashboard" className="flex items-center">
             <h1 className="text-xl font-bold text-primary truncate">Dark Hammer</h1>
           </Link>
-        ) : null}
+        ) : (
+          <div></div>
+        )}
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={toggleSidebar} 
           className={cn(
             "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-            sidebarCollapsed && "mx-auto"
+            sidebarCollapsed ? "mx-auto w-10 h-10" : ""
           )}
         >
           <Menu className="h-5 w-5" />
@@ -139,78 +169,67 @@ export function AppSidebar() {
         </TooltipProvider>
       </nav>
       
-      {/* Moved Settings and Add Channel to bottom */}
-      <div className="p-2 space-y-2 mb-2">
+      {/* Bottom menu items */}
+      <div className="p-2 space-y-2 mb-2 mt-auto">
         <TooltipProvider>
-          {/* Add Channel button with red styling */}
-          {sidebarCollapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
+          {bottomMenuItems.map((item) => (
+            <div key={item.path}>
+              {sidebarCollapsed ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={item.path}
+                      className={cn(
+                        "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                        isActive(item.path)
+                          ? "bg-primary text-primary-foreground"
+                          : item.accentColor 
+                            ? "text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        item.highlighted && !isActive(item.path) && "bg-secondary"
+                      )}
+                    >
+                      <item.icon className={cn(
+                        "h-5 w-5 mx-auto",
+                        item.accentColor && !isActive(item.path) && "text-primary",
+                        isActive(item.path) && item.accentColor && "text-primary-foreground"
+                      )} />
+                      <span className="sr-only">{item.title}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {item.title}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
                 <Link
-                  to="/channels"
+                  to={item.path}
                   className={cn(
-                    "flex items-center px-3 py-2 rounded-md text-sm font-medium text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
-                    isActive("/channels") && "bg-primary text-primary-foreground"
+                    "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    isActive(item.path)
+                      ? "bg-primary text-primary-foreground"
+                      : item.accentColor 
+                        ? "text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    item.highlighted && !isActive(item.path) && "bg-secondary"
                   )}
                 >
-                  <PlusCircle className="h-5 w-5 mx-auto text-primary" />
-                  <span className="sr-only">Adicionar Canal</span>
+                  <item.icon className={cn(
+                    "h-5 w-5 mr-2",
+                    item.accentColor && !isActive(item.path) && "text-primary",
+                    isActive(item.path) && item.accentColor && "text-primary-foreground"
+                  )} />
+                  <span>{item.title}</span>
                 </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                Adicionar Canal
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Link
-              to="/channels"
-              className={cn(
-                "flex items-center px-3 py-2 rounded-md text-sm font-medium text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
-                isActive("/channels") && "bg-primary text-primary-foreground"
               )}
-            >
-              <PlusCircle className="h-5 w-5 mr-2 text-primary" />
-              <span>Adicionar Canal</span>
-            </Link>
-          )}
-          
-          {/* Settings button */}
-          {sidebarCollapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  to="/settings"
-                  className={cn(
-                    "flex items-center px-3 py-2 rounded-md text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
-                    isActive("/settings") && "bg-primary text-primary-foreground"
-                  )}
-                >
-                  <Settings className="h-5 w-5 mx-auto" />
-                  <span className="sr-only">Configurações</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                Configurações
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Link
-              to="/settings"
-              className={cn(
-                "flex items-center px-3 py-2 rounded-md text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
-                isActive("/settings") && "bg-primary text-primary-foreground"
-              )}
-            >
-              <Settings className="h-5 w-5 mr-2" />
-              <span>Configurações</span>
-            </Link>
-          )}
+            </div>
+          ))}
         </TooltipProvider>
       </div>
       
       <div className="p-2 border-t border-sidebar-border">
         <div className="flex items-center justify-between p-2 rounded-md">
-          {!sidebarCollapsed && (
+          {!sidebarCollapsed ? (
             <div className="flex items-center flex-1">
               <Avatar className="h-8 w-8 mr-2">
                 <AvatarImage src="https://github.com/shadcn.png" />
@@ -228,21 +247,12 @@ export function AppSidebar() {
                 <LogIn className="h-5 w-5" />
               </Button>
             </div>
-          )}
-          {sidebarCollapsed && (
-            <div className="flex items-center justify-between w-full">
+          ) : (
+            <div className="flex items-center justify-center w-full">
               <Avatar className="h-8 w-8">
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>{userName?.[0] || "JD"}</AvatarFallback>
               </Avatar>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleLogout}
-                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              >
-                <LogIn className="h-5 w-5" />
-              </Button>
             </div>
           )}
         </div>

@@ -19,10 +19,16 @@ import {
 import { useStore } from "@/lib/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
 
 export function ComboboxDemo() {
   const [open, setOpen] = useState(false);
-  const { channels = [], selectedChannelId, setSelectedChannelId } = useStore();
+  const { channels = [], selectedChannelId, setSelectedChannelId, dateRange, setDateRange } = useStore();
   const [value, setValue] = useState(selectedChannelId || "");
   const navigate = useNavigate();
   
@@ -57,83 +63,112 @@ export function ComboboxDemo() {
   // Make sure we safely find the channel
   const selectedChannel = safeChannels.find(c => c && c.id === value);
 
+  // Available date range options with the new "All" option
+  const dateRangeOptions = [
+    { value: 'all', label: 'All' },
+    { value: '12h', label: '12h' },
+    { value: '7d', label: '7d' },
+    { value: '28d', label: '28d' },
+    { value: 'custom', label: 'Custom' },
+  ];
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between text-left"
-        >
-          {selectedChannel ? (
-            <div className="flex items-center">
-              <Avatar className="h-6 w-6 mr-2">
-                <AvatarImage src={selectedChannel.thumbnail} alt={selectedChannel.title} />
-                <AvatarFallback>{selectedChannel.title.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <span className="truncate">{selectedChannel.title}</span>
-            </div>
-          ) : (
-            "Todos os Canais"
-          )}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[240px] p-0">
-        <Command>
-          <CommandInput placeholder="Buscar canal..." />
-          <CommandEmpty>
-            {hasConnectedChannels ? "Nenhum canal encontrado." : (
-              <div className="py-2 text-center">
-                <p>Nenhum canal conectado</p>
-                <Button 
-                  variant="link" 
-                  className="mt-1 text-primary" 
-                  onClick={() => handleSelect("add-channel")}
-                >
-                  Adicionar Canal
-                </Button>
+    <div className="flex flex-col sm:flex-row gap-4 items-center">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full sm:w-[220px] justify-between text-left"
+          >
+            {selectedChannel ? (
+              <div className="flex items-center">
+                <Avatar className="h-6 w-6 mr-2">
+                  <AvatarImage src={selectedChannel.thumbnail} alt={selectedChannel.title} />
+                  <AvatarFallback>{selectedChannel.title.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <span className="truncate">{selectedChannel.title}</span>
               </div>
+            ) : (
+              "Todos os Canais"
             )}
-          </CommandEmpty>
-          <CommandGroup>
-            <CommandItem
-              key="all-channels"
-              value="all-channels"
-              onSelect={() => handleSelect("")}
-            >
-              <Check
-                className={cn(
-                  "mr-2 h-4 w-4",
-                  !value ? "opacity-100" : "opacity-0"
-                )}
-              />
-              Todos os Canais
-            </CommandItem>
-            {/* Safe rendering of connected channels with null checks */}
-            {connectedChannels.map((channel) => channel && (
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[240px] p-0">
+          <Command>
+            <CommandInput placeholder="Buscar canal..." />
+            <CommandEmpty>
+              {hasConnectedChannels ? "Nenhum canal encontrado." : (
+                <div className="py-2 text-center">
+                  <p>Nenhum canal conectado</p>
+                  <Button 
+                    variant="link" 
+                    className="mt-1 text-primary" 
+                    onClick={() => handleSelect("add-channel")}
+                  >
+                    Adicionar Canal
+                  </Button>
+                </div>
+              )}
+            </CommandEmpty>
+            <CommandGroup>
               <CommandItem
-                key={channel.id}
-                value={channel.id}
-                onSelect={() => handleSelect(channel.id)}
+                key="all-channels"
+                value="all-channels"
+                onSelect={() => handleSelect("")}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === channel.id ? "opacity-100" : "opacity-0"
+                    !value ? "opacity-100" : "opacity-0"
                   )}
                 />
-                <Avatar className="h-6 w-6 mr-2">
-                  <AvatarImage src={channel.thumbnail} alt={channel.title} />
-                  <AvatarFallback>{channel.title.charAt(0)}</AvatarFallback>
-                </Avatar>
-                {channel.title}
+                Todos os Canais
               </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              {/* Safe rendering of connected channels with null checks */}
+              {connectedChannels.map((channel) => channel && (
+                <CommandItem
+                  key={channel.id}
+                  value={channel.id}
+                  onSelect={() => handleSelect(channel.id)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === channel.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <Avatar className="h-6 w-6 mr-2">
+                    <AvatarImage src={channel.thumbnail} alt={channel.title} />
+                    <AvatarFallback>{channel.title.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  {channel.title}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      <Tabs 
+        defaultValue={dateRange} 
+        onValueChange={(value) => setDateRange(value as any)}
+        className="w-full sm:w-auto"
+      >
+        <TabsList className="grid grid-cols-5 w-full">
+          {dateRangeOptions.map((option) => (
+            <TabsTrigger
+              key={option.value}
+              value={option.value}
+              className="px-3 py-1.5 text-sm"
+            >
+              {option.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+    </div>
   );
 }

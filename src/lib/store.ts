@@ -97,7 +97,9 @@ export const useStore = create<DarkHammerState>()(
         })),
       removeChannel: (channelId) => 
         set((state) => ({ 
-          channels: state.channels.filter(c => c.id !== channelId) 
+          channels: state.channels.filter(c => c.id !== channelId),
+          // If the removed channel was selected, reset the selection
+          selectedChannelId: state.selectedChannelId === channelId ? null : state.selectedChannelId
         })),
       toggleChannelConnection: (channelId) => 
         set((state) => ({ 
@@ -109,7 +111,7 @@ export const useStore = create<DarkHammerState>()(
       // Filters
       selectedChannelId: null,
       setSelectedChannelId: (id) => set({ selectedChannelId: id }),
-      dateRange: 'all', // Default to 'all' now
+      dateRange: 'all', // Default to 'all'
       setDateRange: (range) => set({ dateRange: range }),
       customDateRange: {
         startDate: null,

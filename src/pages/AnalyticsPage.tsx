@@ -52,7 +52,7 @@ export default function AnalyticsPage() {
     { name: '55+', value: 5 },
   ];
 
-  // Updated colors to use red shades instead of purple
+  // Updated colors to use red shades
   const AUDIENCE_COLORS = ['#ea384c', '#f0616f', '#f58991', '#fab1b5', '#ffd8da'];
   const CHART_COLOR = '#ea384c';
   const CHART_FILL = 'rgba(234, 56, 76, 0.5)';
