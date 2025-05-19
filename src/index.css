@@ -91,4 +91,42 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
   }
+
+  /* Aumentar espaçamento nos hovers e menus */
+  .dropdown-menu-item {
+    @apply py-2.5 px-3;
+  }
+  
+  .sidebar-menu-item {
+    @apply py-2.5;
+  }
+  
+  /* Estilo para o scrollbar personalizado */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-muted/40 rounded-full;
+  }
+  
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-muted/30;
+  }
+  
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-thumb) var(--sb-track);
+    --sb-track: transparent;
+    --sb-thumb: hsl(var(--muted) / 0.4);
+  }
+  
+  .dark .custom-scrollbar {
+    --sb-thumb: hsl(var(--muted) / 0.3);
+  }
 }
