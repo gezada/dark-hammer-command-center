@@ -1,4 +1,3 @@
-
 import { AppHeader } from "@/components/AppHeader";
 import { useStore } from "@/lib/store";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,6 @@ import {
   Save,
   Plus,
   Trash2,
-  Upload as UploadIcon,
 } from "lucide-react";
 import { 
   Card, 
@@ -154,17 +152,16 @@ export default function UploadPage() {
                     <div className="mt-2 flex items-center justify-center w-full">
                       <label 
                         htmlFor="video-file" 
-                        className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50"
                       >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <UploadIcon className="w-10 h-10 text-muted-foreground mb-4" />
-                          <p className="mb-2 text-sm">
-                            <span className="font-semibold">Drag and drop your video file here</span>
+                          <svg className="w-8 h-8 text-gray-500 mb-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500">
+                            <span className="font-semibold">Clique para carregar</span> ou arraste e solte
                           </p>
-                          <p className="text-xs text-muted-foreground">
-                            or click to browse files
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">MP4, MOV ou WEBM (MAX. 10GB)</p>
+                          <p className="text-xs text-gray-500">MP4, MOV ou WEBM (MAX. 10GB)</p>
                         </div>
                         <input 
                           id="video-file" 
@@ -176,7 +173,7 @@ export default function UploadPage() {
                       </label>
                     </div>
                     {uploadFile && (
-                      <p className="mt-2 text-sm text-muted-foreground">{uploadFile.name}</p>
+                      <p className="mt-2 text-sm text-gray-500">{uploadFile.name}</p>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -214,7 +211,7 @@ export default function UploadPage() {
                         type="button" 
                         variant={uploadVisibility === "public" ? "default" : "outline"}
                         onClick={() => setUploadVisibility("public")}
-                        className="flex items-center h-10"
+                        className="flex items-center"
                       >
                         <Globe className="h-4 w-4 mr-2" />
                         Público
@@ -223,7 +220,7 @@ export default function UploadPage() {
                         type="button" 
                         variant={uploadVisibility === "unlisted" ? "default" : "outline"}
                         onClick={() => setUploadVisibility("unlisted")}
-                        className="flex items-center h-10"
+                        className="flex items-center"
                       >
                         <EyeOff className="h-4 w-4 mr-2" />
                         Não listado
@@ -232,7 +229,7 @@ export default function UploadPage() {
                         type="button" 
                         variant={uploadVisibility === "private" ? "default" : "outline"}
                         onClick={() => setUploadVisibility("private")}
-                        className="flex items-center h-10"
+                        className="flex items-center"
                       >
                         <Lock className="h-4 w-4 mr-2" />
                         Privado
@@ -246,7 +243,7 @@ export default function UploadPage() {
                         <PopoverTrigger asChild>
                           <Button
                             variant={uploadScheduledDate ? "default" : "outline"}
-                            className="flex items-center justify-start h-10"
+                            className="flex items-center justify-start"
                           >
                             <Calendar className="h-4 w-4 mr-2" />
                             {uploadScheduledDate 
@@ -260,7 +257,6 @@ export default function UploadPage() {
                             selected={uploadScheduledDate || undefined}
                             onSelect={setUploadScheduledDate}
                             initialFocus
-                            className="pointer-events-auto"
                           />
                           <div className="p-3 border-t">
                             <Label htmlFor="time">Hora</Label>
@@ -289,7 +285,6 @@ export default function UploadPage() {
                         <Button
                           variant="outline"
                           onClick={() => setUploadScheduledDate(null)}
-                          className="h-10"
                         >
                           Limpar data
                         </Button>
@@ -299,7 +294,7 @@ export default function UploadPage() {
                   <div className="space-y-2">
                     <Label htmlFor="channel">Canal</Label>
                     <Select>
-                      <SelectTrigger className="h-10">
+                      <SelectTrigger>
                         <SelectValue placeholder="Selecione um canal" />
                       </SelectTrigger>
                       <SelectContent>
@@ -315,7 +310,7 @@ export default function UploadPage() {
                 <CardFooter className="flex justify-between flex-wrap gap-2">
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="outline" className="flex items-center h-10">
+                      <Button variant="outline" className="flex items-center">
                         <Save className="h-4 w-4 mr-2" />
                         Salvar como Template
                       </Button>
@@ -359,7 +354,6 @@ export default function UploadPage() {
                           variant="default"
                           onClick={handleSaveTemplate}
                           disabled={!templateName}
-                          className="h-10"
                         >
                           Salvar Template
                         </Button>
@@ -370,9 +364,7 @@ export default function UploadPage() {
                     variant="default"
                     onClick={handleUpload}
                     disabled={!uploadFile || !uploadTitle}
-                    className="bg-red-600 hover:bg-red-700 h-10"
                   >
-                    <UploadIcon className="h-4 w-4 mr-2" />
                     Fazer Upload
                   </Button>
                 </CardFooter>
@@ -395,7 +387,7 @@ export default function UploadPage() {
                           variant="outline" 
                           size="sm"
                           onClick={() => setIsDialogOpen(true)}
-                          className="flex items-center mx-auto h-9"
+                          className="flex items-center mx-auto"
                         >
                           <Plus className="h-4 w-4 mr-2" />
                           Criar Template
@@ -438,7 +430,7 @@ export default function UploadPage() {
                               <Button
                                 variant="default"
                                 size="sm"
-                                className="w-full h-9"
+                                className="w-full"
                                 onClick={() => handleApplyTemplate(template.id)}
                               >
                                 Aplicar Template

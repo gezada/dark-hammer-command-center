@@ -12,6 +12,8 @@ import { format, differenceInDays } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useStore } from "@/lib/store";
 
+type DateRange = 'all' | '12h' | '7d' | '28d' | 'custom';
+
 export function DateRangeFilter() {
   const { dateRange, setDateRange, customDateRange, setCustomDateRange } = useStore();
   const [open, setOpen] = useState(false);
@@ -69,8 +71,8 @@ export function DateRangeFilter() {
           key={range}
           size="sm"
           variant={dateRange === range ? 'default' : 'outline'}
-          className="h-10"
-          onClick={() => setDateRange(range as any)}
+          className="h-9"
+          onClick={() => setDateRange(range as DateRange)}
         >
           {range === 'all' ? 'All' : range}
         </Button>
@@ -81,7 +83,7 @@ export function DateRangeFilter() {
           <Button
             size="sm"
             variant={dateRange === 'custom' ? 'default' : 'outline'}
-            className="h-10"
+            className="h-9"
           >
             Custom
           </Button>
