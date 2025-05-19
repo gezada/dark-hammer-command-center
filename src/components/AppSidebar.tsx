@@ -61,16 +61,18 @@ export function AppSidebar() {
   ];
 
   return (
-    <div className={cn(
-      "fixed inset-y-0 left-0 z-30 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300",
-      sidebarCollapsed ? "w-[60px]" : "w-[240px]"
-    )}>
+    <div
+      className={cn(
+        "fixed inset-y-0 left-0 z-30 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300",
+        sidebarCollapsed ? "w-[60px]" : "w-[240px]"
+      )}
+    >
       <div className="flex items-center justify-center h-16 border-b border-sidebar-border px-4">
         {!sidebarCollapsed ? (
           <Link to="/dashboard" className="flex items-center">
             <h1 className="text-xl font-bold text-primary truncate">Dark Hammer</h1>
           </Link>
-        )}
+        ) : null}
         <Button 
           variant="ghost" 
           size="icon" 
