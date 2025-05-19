@@ -153,7 +153,7 @@ export function ComboboxDemo() {
       </Popover>
 
       <Tabs 
-        defaultValue={dateRange} 
+        defaultValue={dateRange || "all"} 
         onValueChange={(value) => setDateRange(value as any)}
         className="w-full sm:w-auto"
       >

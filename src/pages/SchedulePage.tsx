@@ -16,31 +16,44 @@ export default function SchedulePage() {
 
   // Simulate scheduled videos
   useEffect(() => {
-    const dummyScheduled = [
-      {
-        id: '1',
-        title: 'The Ultimate Gaming Guide',
-        date: new Date(Date.now() + 24 * 60 * 60 * 1000), // tomorrow
-        channelId: channels[0]?.id || '',
-        thumbnail: 'https://placehold.co/100x56?text=Video+1'
-      },
-      {
-        id: '2',
-        title: 'Top 10 Gaming Moments',
-        date: new Date(Date.now() + 48 * 60 * 60 * 1000), // day after tomorrow
-        channelId: channels[0]?.id || '',
-        thumbnail: 'https://placehold.co/100x56?text=Video+2'
-      },
-      {
-        id: '3',
-        title: 'How to Improve Your Gaming Skills',
-        date: new Date(Date.now() + 72 * 60 * 60 * 1000), // 3 days from now
-        channelId: channels[1]?.id || '',
-        thumbnail: 'https://placehold.co/100x56?text=Video+3'
-      }
-    ];
+    // Make sure to handle the case where channels might be undefined
+    const safeChannels = Array.isArray(channels) ? channels : [];
     
-    setScheduledVideos(dummyScheduled);
+    // Only proceed if we have at least one channel
+    if (safeChannels.length > 0) {
+      const dummyScheduled = [
+        {
+          id: '1',
+          title: 'The Ultimate Gaming Guide',
+          date: new Date(Date.now() + 24 * 60 * 60 * 1000), // tomorrow
+          channelId: safeChannels[0]?.id || '',
+          thumbnail: 'https://placehold.co/100x56?text=Video+1'
+        },
+        {
+          id: '2',
+          title: 'Top 10 Gaming Moments',
+          date: new Date(Date.now() + 48 * 60 * 60 * 1000), // day after tomorrow
+          channelId: safeChannels[0]?.id || '',
+          thumbnail: 'https://placehold.co/100x56?text=Video+2'
+        }
+      ];
+      
+      // Only add the third video if we have at least 2 channels
+      if (safeChannels.length > 1) {
+        dummyScheduled.push({
+          id: '3',
+          title: 'How to Improve Your Gaming Skills',
+          date: new Date(Date.now() + 72 * 60 * 60 * 1000), // 3 days from now
+          channelId: safeChannels[1]?.id || '',
+          thumbnail: 'https://placehold.co/100x56?text=Video+3'
+        });
+      }
+      
+      setScheduledVideos(dummyScheduled);
+    } else {
+      // If no channels are available, set empty scheduled videos
+      setScheduledVideos([]);
+    }
   }, [channels]);
 
   // Get scheduled videos for the selected date
@@ -57,7 +70,8 @@ export default function SchedulePage() {
 
   // Get the corresponding channel for a video
   const getChannelForVideo = (channelId: string) => {
-    return channels.find(channel => channel.id === channelId) || null;
+    const safeChannels = Array.isArray(channels) ? channels : [];
+    return safeChannels.find(channel => channel && channel.id === channelId) || null;
   };
 
   // Function to format date and time
@@ -67,7 +81,7 @@ export default function SchedulePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <AppHeader />
+      <AppHeader showFilters={false} />
       <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
         <div className="max-w-6xl mx-auto">
           {/* Header and filters */}
