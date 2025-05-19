@@ -1,4 +1,3 @@
-
 import { AppHeader } from "@/components/AppHeader";
 import { useStore } from "@/lib/store";
 import { Input } from "@/components/ui/input";
@@ -335,12 +334,12 @@ export default function UploadPage() {
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="template-channel">Canal (opcional)</Label>
-                          <Select value={selectedChannelId || ""} onValueChange={setSelectedChannelId}>
+                          <Select value={selectedChannelId || "global"} onValueChange={setSelectedChannelId}>
                             <SelectTrigger>
                               <SelectValue placeholder="Template global (todos os canais)" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">Template global (todos os canais)</SelectItem>
+                              <SelectItem value="global">Template global (todos os canais)</SelectItem>
                               {connectedChannels.map(channel => (
                                 <SelectItem key={channel.id} value={channel.id}>
                                   {channel.title}
