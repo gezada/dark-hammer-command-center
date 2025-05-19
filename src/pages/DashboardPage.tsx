@@ -1,6 +1,6 @@
 
 import { AppHeader } from "@/components/AppHeader";
-import { ChannelFilter } from "@/components/ChannelFilter";
+import { DateRangeFilter } from "@/components/DateRangeFilter";
 import { DashboardSkeleton } from "@/components/skeleton/DashboardSkeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
@@ -33,9 +33,9 @@ export default function DashboardPage() {
     <div className="min-h-screen flex flex-col">
       <AppHeader />
       <main className={`flex-1 p-6 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <ChannelFilter />
+          <DateRangeFilter />
         </div>
 
         <ScrollArea className="h-[calc(100vh-130px)] custom-scrollbar pr-4">

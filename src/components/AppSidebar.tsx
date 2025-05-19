@@ -70,7 +70,7 @@ export function AppSidebar() {
       title: 'Upload',
       icon: Upload,
       path: '/upload',
-      highlighted: true,
+      outlined: true,
       order: 5,
     },
     {
@@ -109,7 +109,7 @@ export function AppSidebar() {
           onClick={toggleSidebar} 
           className={cn(
             "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-            sidebarCollapsed ? "mx-auto w-10 h-10" : ""
+            sidebarCollapsed ? "mx-auto h-10 w-10" : ""
           )}
         >
           <Menu className="h-5 w-5" />
@@ -126,7 +126,7 @@ export function AppSidebar() {
                     <Link
                       to={item.path}
                       className={cn(
-                        "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors relative",
+                        "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors relative",
                         isActive(item.path)
                           ? "bg-primary text-primary-foreground"
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -149,7 +149,7 @@ export function AppSidebar() {
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors relative",
+                    "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors relative",
                     isActive(item.path)
                       ? "bg-primary text-primary-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -180,13 +180,13 @@ export function AppSidebar() {
                     <Link
                       to={item.path}
                       className={cn(
-                        "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                        "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
                         isActive(item.path)
                           ? "bg-primary text-primary-foreground"
                           : item.accentColor 
                             ? "text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
                             : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        item.highlighted && !isActive(item.path) && "bg-secondary"
+                        item.outlined && !isActive(item.path) && "border border-primary"
                       )}
                     >
                       <item.icon className={cn(
@@ -205,13 +205,13 @@ export function AppSidebar() {
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
                     isActive(item.path)
                       ? "bg-primary text-primary-foreground"
                       : item.accentColor 
                         ? "text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
                         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    item.highlighted && !isActive(item.path) && "bg-secondary"
+                    item.outlined && !isActive(item.path) && "border border-primary bg-transparent"
                   )}
                 >
                   <item.icon className={cn(
@@ -242,7 +242,7 @@ export function AppSidebar() {
                 variant="ghost" 
                 size="icon" 
                 onClick={handleLogout}
-                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-2"
+                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-2 h-10 w-10"
               >
                 <LogIn className="h-5 w-5" />
               </Button>

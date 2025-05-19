@@ -12,6 +12,7 @@ interface AppHeaderProps {
 export function AppHeader({ showFilters = true }: AppHeaderProps) {
   const location = useLocation();
   const path = location.pathname;
+  const isUploadActive = path === "/upload";
   
   return (
     <header className="sticky top-0 z-10 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -19,7 +20,14 @@ export function AppHeader({ showFilters = true }: AppHeaderProps) {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Link to="/upload">
-            <Button variant="outline" size="sm" className="gap-1">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className={cn(
+                "gap-1 border-primary py-3",
+                isUploadActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-transparent hover:bg-primary hover:text-primary-foreground"
+              )}
+            >
               <Upload className="h-4 w-4" />
               Upload
             </Button>
