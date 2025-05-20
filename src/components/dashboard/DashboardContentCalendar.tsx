@@ -43,21 +43,10 @@ export function DashboardContentCalendar() {
     return date.toISOString().split('T')[0];
   });
 
-  // Custom day renderer for the calendar
-  const renderDay = (day: Date) => {
-    const dateString = day.toISOString().split('T')[0];
-    const hasEvent = eventDates.includes(dateString);
-    
-    return (
-      <div className="relative">
-        <div>{day.getDate()}</div>
-        {hasEvent && (
-          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-            <div className="h-1 w-1 bg-primary rounded-full"></div>
-          </div>
-        )}
-      </div>
-    );
+  // Since renderDay is not supported, we'll use the modifiers and modifiersClassNames
+  const isDayWithEvent = (date: Date) => {
+    const dateString = date.toISOString().split('T')[0];
+    return eventDates.includes(dateString);
   };
 
   return (
@@ -76,7 +65,10 @@ export function DashboardContentCalendar() {
               <Calendar 
                 mode="single"
                 className="rounded-md border"
-                renderDay={renderDay}
+                modifiers={{ hasEvent: isDayWithEvent }}
+                modifiersClassNames={{
+                  hasEvent: "relative before:absolute before:bottom-1 before:left-1/2 before:transform before:-translate-x-1/2 before:h-1 before:w-1 before:bg-primary before:rounded-full"
+                }}
               />
             </CardContent>
           </Card>

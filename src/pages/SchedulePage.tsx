@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { DateRangeFilter } from "@/components/DateRangeFilter";
@@ -131,23 +130,10 @@ export default function SchedulePage() {
     return date.toISOString().split('T')[0];
   });
 
-  // Custom day renderer for the calendar
-  const renderDay = (day: Date) => {
-    const dateString = day.toISOString().split('T')[0];
-    const hasScheduledVideo = scheduledDates.includes(dateString);
-    
-    return (
-      <div className="relative">
-        <div className={`${hasScheduledVideo ? 'font-bold' : ''}`}>
-          {day.getDate()}
-        </div>
-        {hasScheduledVideo && (
-          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-            <div className="h-1 w-1 bg-primary rounded-full"></div>
-          </div>
-        )}
-      </div>
-    );
+  // Instead of renderDay, use modifiers for highlighting dates with scheduled videos
+  const isDayWithVideo = (date: Date) => {
+    const dateString = date.toISOString().split('T')[0];
+    return scheduledDates.includes(dateString);
   };
 
   if (isLoading) {
@@ -227,8 +213,11 @@ export default function SchedulePage() {
                     mode="single"
                     selected={selectedDate}
                     onSelect={setSelectedDate}
-                    className="rounded-md border"
-                    renderDay={renderDay}
+                    className="rounded-md border pointer-events-auto"
+                    modifiers={{ hasVideo: isDayWithVideo }}
+                    modifiersClassNames={{
+                      hasVideo: "font-bold relative before:absolute before:bottom-1 before:left-1/2 before:transform before:-translate-x-1/2 before:h-1 before:w-1 before:bg-primary before:rounded-full"
+                    }}
                   />
                   <div className="mt-4 text-sm text-muted-foreground">
                     <p>Drag and drop videos to reschedule publishing. Click on dates to view scheduled content.</p>

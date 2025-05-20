@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { useStore, Channel } from "@/lib/store";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Globe, Trash2, CheckCircle2, ArrowRight, ChevronRight, YouTube, ExternalLink } from "lucide-react";
+import { Globe, Trash2, CheckCircle2, ArrowRight, ChevronRight, Youtube, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUserChannels } from "@/lib/api";
@@ -145,7 +144,7 @@ export default function ChannelsPage() {
               <CardContent>
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center text-sm text-muted-foreground">
-                    <YouTube className="h-4 w-4 text-red-500 mr-2" />
+                    <Youtube className="h-4 w-4 text-red-500 mr-2" />
                     <span className="truncate">youtube.com/c/{channel.id}</span>
                   </div>
                   
@@ -205,7 +204,7 @@ export default function ChannelsPage() {
                 <div className="border rounded-lg p-4 bg-muted/30">
                   <div className="flex items-center justify-center gap-4">
                     <div className="rounded-full bg-primary/10 p-3 flex-shrink-0">
-                      <YouTube className="h-6 w-6 text-red-500" />
+                      <Youtube className="h-6 w-6 text-red-500" />
                     </div>
                     <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     <div className="rounded-full bg-primary/10 p-3 flex-shrink-0">

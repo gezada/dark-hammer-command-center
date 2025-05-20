@@ -44,7 +44,7 @@ export function DateRangeFilter() {
           size="sm"
           variant={dateRange === option.value ? 'default' : 'outline'}
           className="h-9 min-w-[50px]" // Fixed minimum width for consistent spacing
-          onClick={() => setDateRange(option.value)}
+          onClick={() => setDateRange(option.value as typeof dateRange)}
         >
           {option.label}
         </Button>
