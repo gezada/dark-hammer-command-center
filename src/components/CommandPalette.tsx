@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -6,6 +7,7 @@ import {
   BarChart2,
   MessageSquare,
   Settings,
+  Calendar,
 } from "lucide-react";
 
 import {
@@ -52,6 +54,12 @@ export function CommandPalette() {
       action: () => navigate("/upload")
     },
     {
+      icon: <Calendar className="mr-2 h-4 w-4" />,
+      label: "Go to Schedule",
+      shortcut: "G S",
+      action: () => navigate("/schedule")
+    },
+    {
       icon: <BarChart2 className="mr-2 h-4 w-4" />,
       label: "Go to Analytics",
       shortcut: "G A",
@@ -85,7 +93,7 @@ export function CommandPalette() {
     // Delay setting the mounted state to ensure the DOM is fully ready
     const timer = setTimeout(() => {
       setIsMounted(true);
-    }, 200);
+    }, 300);
     
     return () => clearTimeout(timer);
   }, []);
@@ -121,7 +129,7 @@ export function CommandPalette() {
         <CommandEmpty>No results found.</CommandEmpty>
         
         {/* Only render navigation commands if they exist */}
-        {safeNavigationCommands.length > 0 && (
+        {safeNavigationCommands && safeNavigationCommands.length > 0 && (
           <CommandGroup heading="Navigation">
             {safeNavigationCommands.map((command, index) => (
               <CommandItem
@@ -139,7 +147,7 @@ export function CommandPalette() {
         <CommandSeparator />
         
         {/* Only render account commands if they exist */}
-        {safeAccountCommands.length > 0 && (
+        {safeAccountCommands && safeAccountCommands.length > 0 && (
           <CommandGroup heading="Account">
             {safeAccountCommands.map((command, index) => (
               <CommandItem

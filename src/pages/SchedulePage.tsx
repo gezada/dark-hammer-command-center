@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { DateRangeFilter } from "@/components/DateRangeFilter";
@@ -12,6 +13,7 @@ import { Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ChannelFilter } from "@/components/ChannelFilter";
 
 type ScheduledVideo = {
   id: string;
@@ -22,10 +24,9 @@ type ScheduledVideo = {
 };
 
 export default function SchedulePage() {
-  const { sidebarCollapsed } = useStore();
+  const { sidebarCollapsed, selectedChannelId } = useStore();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [scheduledVideos, setScheduledVideos] = useState<ScheduledVideo[]>([]);
 
   // Initialize sample scheduled videos
@@ -79,8 +80,8 @@ export default function SchedulePage() {
   }, []);
 
   // Filter videos by selected channel
-  const filteredVideos = selectedChannel 
-    ? scheduledVideos.filter(video => video.channel === selectedChannel) 
+  const filteredVideos = selectedChannelId 
+    ? scheduledVideos.filter(video => video.channel === selectedChannelId) 
     : scheduledVideos;
 
   // Sort videos by publish date
@@ -192,11 +193,7 @@ export default function SchedulePage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <h1 className="text-2xl font-bold tracking-tight">Schedule</h1>
           <div className="flex flex-col sm:flex-row gap-3">
-            <DateRangeFilter />
-            <ChannelSelector 
-              selectedChannelId={selectedChannel}
-              onChannelChange={setSelectedChannel}
-            />
+            <ChannelFilter />
           </div>
         </div>
 
@@ -237,7 +234,7 @@ export default function SchedulePage() {
                 <div className="space-y-4">
                   {sortedVideos.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      No videos scheduled {selectedChannel ? "for this channel" : ""}
+                      No videos scheduled {selectedChannelId ? "for this channel" : ""}
                     </div>
                   ) : (
                     sortedVideos.map((video) => (
@@ -264,8 +261,11 @@ export default function SchedulePage() {
                             <Clock className="h-3 w-3 mr-1 text-muted-foreground" />
                             <span className="text-xs text-muted-foreground">{formatPublishDate(video.publishDate)}</span>
                           </div>
+                          <div className="text-xs text-[#ea384c] mt-0.5">
+                            {video.channel}
+                          </div>
                           <div className="flex items-center justify-between mt-2">
-                            <Badge variant="outline" className="text-xs">{video.channel}</Badge>
+                            <Badge variant="outline" className="text-xs h-5">{video.channel}</Badge>
                             <Button 
                               size="sm" 
                               variant="outline" 

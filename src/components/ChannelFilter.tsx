@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Check, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,8 @@ import {
 import { differenceInDays, format } from 'date-fns';
 import { useStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 export const ChannelFilter = () => {
   const { 
@@ -61,6 +64,11 @@ export const ChannelFilter = () => {
     });
   };
   
+  const handleAllChannelsClick = () => {
+    setSelectedChannels([]);
+    setSelectedChannelId(null);
+  };
+  
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
     
@@ -89,8 +97,20 @@ export const ChannelFilter = () => {
     return `${format(customDateRange.startDate, 'dd MMM')} - ${format(customDateRange.endDate, 'dd MMM yyyy')} (${days} days)`;
   };
   
+  // Only include connected channels
+  const connectedChannels = channels?.filter(c => c.isConnected) || [];
+  
   return (
     <div className="flex items-center gap-4">
+      <Button 
+        variant={selectedChannels.length === 0 ? "default" : "outline"} 
+        size="sm" 
+        className="gap-1.5"
+        onClick={handleAllChannelsClick}
+      >
+        All Channels
+      </Button>
+      
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="gap-1.5">
@@ -109,8 +129,8 @@ export const ChannelFilter = () => {
           </div>
           <ScrollArea className="h-56 custom-scrollbar">
             <div className="p-2">
-              {channels && channels.length > 0 ? (
-                channels.map((channel) => (
+              {connectedChannels && connectedChannels.length > 0 ? (
+                connectedChannels.map((channel) => (
                   <div key={channel.id} className="flex items-center space-x-2 py-2">
                     <Checkbox 
                       id={`channel-${channel.id}`} 
@@ -121,9 +141,10 @@ export const ChannelFilter = () => {
                       htmlFor={`channel-${channel.id}`}
                       className="text-sm flex items-center gap-2 cursor-pointer flex-1"
                     >
-                      <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs">
-                        {channel.title.charAt(0)}
-                      </div>
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={channel.thumbnail} alt={channel.title} />
+                        <AvatarFallback>{channel.title.charAt(0)}</AvatarFallback>
+                      </Avatar>
                       {channel.title}
                     </label>
                   </div>
