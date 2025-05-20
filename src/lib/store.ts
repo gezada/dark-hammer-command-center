@@ -11,7 +11,7 @@ export type Channel = {
 
 export type ThemeMode = 'dark' | 'light';
 
-type DateRange = 'all' | '12h' | '7d' | '28d' | 'custom';
+type DateRange = 'all' | '7d' | '28d' | '90d' | '365d' | 'month' | 'year' | 'custom';
 
 type DateRangeCustom = {
   startDate: Date | null;
