@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -33,41 +32,12 @@ interface NavigationCommand extends CommandItem {
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
+  
+  // We need to keep track of whether the component is mounted in a browser environment
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Ensure the component is fully mounted before rendering any cmdk elements
-  useEffect(() => {
-    // This ensures we're in a browser environment and DOM is ready
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 100); // Small delay to ensure everything is fully ready
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Set up keyboard shortcut listener
-  useEffect(() => {
-    // Only add event listener if component is mounted
-    if (!mounted) return;
-    
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((open) => !open);
-      }
-    };
-
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, [mounted]);
-
-  const runCommand = (command: () => void) => {
-    setOpen(false);
-    command();
-  };
-
-  // Define navigation commands
+  // Define navigation commands within the component to ensure they're available
   const navigationCommands: NavigationCommand[] = [
     {
       icon: <LayoutDashboard className="mr-2 h-4 w-4" />,
@@ -104,53 +74,85 @@ export function CommandPalette() {
     }
   ];
 
-  // Only render when mounted and with proper checks
-  if (!mounted) {
+  // Use a callback for running commands to ensure consistency
+  const runCommand = useCallback((command: () => void) => {
+    setOpen(false);
+    command();
+  }, []);
+
+  // Set mounted state after component is mounted
+  useEffect(() => {
+    // Delay setting the mounted state to ensure the DOM is fully ready
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 200);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Set up keyboard shortcut listener only after component is mounted
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((open) => !open);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, [isMounted]);
+
+  // Only render when component is fully mounted
+  if (!isMounted) {
     return null;
   }
 
-  return (
-    <>
-      {/* Only render when mounted is true */}
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          
-          {/* Make sure navigationCommands exists before mapping */}
-          {navigationCommands && navigationCommands.length > 0 && (
-            <CommandGroup heading="Navigation">
-              {navigationCommands.map((command, index) => (
-                <CommandItem
-                  key={`nav-${index}`}
-                  onSelect={() => runCommand(command.action)}
-                >
-                  {command.icon}
-                  <span>{command.label}</span>
-                  {command.shortcut && <CommandShortcut>{command.shortcut}</CommandShortcut>}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          )}
+  // To ensure cmdk always has defined values to work with
+  const safeNavigationCommands = navigationCommands || [];
+  const safeAccountCommands = accountCommands || [];
 
-          <CommandSeparator />
-          
-          {/* Make sure accountCommands exists before mapping */}
-          {accountCommands && accountCommands.length > 0 && (
-            <CommandGroup heading="Account">
-              {accountCommands.map((command, index) => (
-                <CommandItem
-                  key={`account-${index}`}
-                  onSelect={() => runCommand(command.action)}
-                >
-                  {command.icon}
-                  <span>{command.label}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          )}
-        </CommandList>
-      </CommandDialog>
-    </>
+  return (
+    <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandInput placeholder="Type a command or search..." />
+      <CommandList>
+        <CommandEmpty>No results found.</CommandEmpty>
+        
+        {/* Only render navigation commands if they exist */}
+        {safeNavigationCommands.length > 0 && (
+          <CommandGroup heading="Navigation">
+            {safeNavigationCommands.map((command, index) => (
+              <CommandItem
+                key={`nav-${index}`}
+                onSelect={() => runCommand(command.action)}
+              >
+                {command.icon}
+                <span>{command.label}</span>
+                {command.shortcut && <CommandShortcut>{command.shortcut}</CommandShortcut>}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+
+        <CommandSeparator />
+        
+        {/* Only render account commands if they exist */}
+        {safeAccountCommands.length > 0 && (
+          <CommandGroup heading="Account">
+            {safeAccountCommands.map((command, index) => (
+              <CommandItem
+                key={`account-${index}`}
+                onSelect={() => runCommand(command.action)}
+              >
+                {command.icon}
+                <span>{command.label}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+      </CommandList>
+    </CommandDialog>
   );
 }
