@@ -41,7 +41,14 @@ interface AccountCommand {
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
+
+  // Mark component as mounted after first render
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -60,7 +67,7 @@ export function CommandPalette() {
     command();
   };
 
-  // Create navigation commands ahead of time to avoid undefined
+  // Define navigation commands
   const navigationCommands: NavigationCommand[] = [
     {
       icon: <LayoutDashboard className="mr-2 h-4 w-4" />,
@@ -88,6 +95,7 @@ export function CommandPalette() {
     }
   ];
 
+  // Define account commands
   const accountCommands: AccountCommand[] = [
     {
       icon: <Settings className="mr-2 h-4 w-4" />,
@@ -96,14 +104,17 @@ export function CommandPalette() {
     }
   ];
 
+  // Only render the command dialog if component is mounted to ensure client-side rendering
+  if (!mounted) return null;
+
   return (
     <>
-      {open && (
-        <CommandDialog open={open} onOpenChange={setOpen}>
-          <CommandInput placeholder="Type a command or search..." />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Type a command or search..." />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          
+          {navigationCommands.length > 0 && (
             <CommandGroup heading="Navigation">
               {navigationCommands.map((command, index) => (
                 <CommandItem
@@ -116,9 +127,11 @@ export function CommandPalette() {
                 </CommandItem>
               ))}
             </CommandGroup>
+          )}
 
-            <CommandSeparator />
-
+          <CommandSeparator />
+          
+          {accountCommands.length > 0 && (
             <CommandGroup heading="Account">
               {accountCommands.map((command, index) => (
                 <CommandItem
@@ -130,9 +143,9 @@ export function CommandPalette() {
                 </CommandItem>
               ))}
             </CommandGroup>
-          </CommandList>
-        </CommandDialog>
-      )}
+          )}
+        </CommandList>
+      </CommandDialog>
     </>
   );
 }
