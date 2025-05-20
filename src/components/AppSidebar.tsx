@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -109,7 +108,7 @@ export function AppSidebar() {
           onClick={toggleSidebar} 
           className={cn(
             "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-            sidebarCollapsed ? "mx-auto w-full h-10" : ""
+            sidebarCollapsed ? "h-10 w-10" : ""
           )}
         >
           <Menu className="h-5 w-5" />
