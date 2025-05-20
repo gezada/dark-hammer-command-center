@@ -97,38 +97,42 @@ export function CommandPalette() {
   ];
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search..." />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+    <>
+      {open && (
+        <CommandDialog open={open} onOpenChange={setOpen}>
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
 
-        <CommandGroup heading="Navigation">
-          {navigationCommands.map((command, index) => (
-            <CommandItem
-              key={`nav-${index}`}
-              onSelect={() => runCommand(command.action)}
-            >
-              {command.icon}
-              <span>{command.label}</span>
-              {command.shortcut && <CommandShortcut>{command.shortcut}</CommandShortcut>}
-            </CommandItem>
-          ))}
-        </CommandGroup>
+            <CommandGroup heading="Navigation">
+              {navigationCommands.map((command, index) => (
+                <CommandItem
+                  key={`nav-${index}`}
+                  onSelect={() => runCommand(command.action)}
+                >
+                  {command.icon}
+                  <span>{command.label}</span>
+                  {command.shortcut && <CommandShortcut>{command.shortcut}</CommandShortcut>}
+                </CommandItem>
+              ))}
+            </CommandGroup>
 
-        <CommandSeparator />
+            <CommandSeparator />
 
-        <CommandGroup heading="Account">
-          {accountCommands.map((command, index) => (
-            <CommandItem
-              key={`account-${index}`}
-              onSelect={() => runCommand(command.action)}
-            >
-              {command.icon}
-              <span>{command.label}</span>
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </CommandDialog>
+            <CommandGroup heading="Account">
+              {accountCommands.map((command, index) => (
+                <CommandItem
+                  key={`account-${index}`}
+                  onSelect={() => runCommand(command.action)}
+                >
+                  {command.icon}
+                  <span>{command.label}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </CommandDialog>
+      )}
+    </>
   );
 }
