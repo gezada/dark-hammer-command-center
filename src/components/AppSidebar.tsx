@@ -109,7 +109,7 @@ export function AppSidebar() {
           onClick={toggleSidebar} 
           className={cn(
             "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-            sidebarCollapsed ? "mx-auto h-10 w-10" : ""
+            sidebarCollapsed ? "mx-auto w-full h-10" : ""
           )}
         >
           <Menu className="h-5 w-5" />

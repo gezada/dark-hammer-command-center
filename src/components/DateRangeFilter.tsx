@@ -8,16 +8,23 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInDays, startOfMonth, startOfYear } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useStore } from "@/lib/store";
 
-type DateRange = 'all' | '12h' | '7d' | '28d' | 'custom';
+type DateRange = 'all' | '7d' | '28d' | '90d' | '365d' | 'month' | 'year' | 'custom';
 
 export function DateRangeFilter() {
   const { dateRange, setDateRange, customDateRange, setCustomDateRange } = useStore();
   const [open, setOpen] = useState(false);
   const [selecting, setSelecting] = useState<'start' | 'end'>('start');
+
+  // Set default to 'all' if not already set
+  useEffect(() => {
+    if (!dateRange) {
+      setDateRange('all');
+    }
+  }, [dateRange, setDateRange]);
 
   // Handle date selection
   const handleSelect = (date: Date | undefined) => {
@@ -64,17 +71,39 @@ export function DateRangeFilter() {
     ? differenceInDays(customDateRange.endDate, customDateRange.startDate) + 1
     : 0;
 
+  // Format for month filter label
+  const currentMonthLabel = () => {
+    const now = new Date();
+    return format(now, 'MMM').toLowerCase() + '.';
+  };
+
+  // Format for year filter label
+  const currentYearLabel = () => {
+    return new Date().getFullYear().toString();
+  };
+
+  // Define filter options
+  const filterOptions: {label: string, value: DateRange}[] = [
+    { label: 'All', value: 'all' },
+    { label: '7D', value: '7d' },
+    { label: '28D', value: '28d' },
+    { label: '90D', value: '90d' },
+    { label: '365D', value: '365d' },
+    { label: currentMonthLabel(), value: 'month' },
+    { label: currentYearLabel(), value: 'year' },
+  ];
+
   return (
     <div className="flex items-center gap-1.5">
-      {['all', '12h', '7d', '28d'].map((range) => (
+      {filterOptions.map((option) => (
         <Button
-          key={range}
+          key={option.value}
           size="sm"
-          variant={dateRange === range ? 'default' : 'outline'}
+          variant={dateRange === option.value ? 'default' : 'outline'}
           className="h-9"
-          onClick={() => setDateRange(range as DateRange)}
+          onClick={() => setDateRange(option.value)}
         >
-          {range === 'all' ? 'All' : range}
+          {option.label}
         </Button>
       ))}
       
