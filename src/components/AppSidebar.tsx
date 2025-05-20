@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -73,14 +74,14 @@ export function AppSidebar() {
       order: 5,
     },
     {
-      title: 'Adicionar Canal',
+      title: 'My Channels', // Updated from "Adicionar Canal"
       icon: PlusCircle,
       path: '/channels',
       accentColor: true,
       order: 6,
     },
     {
-      title: 'Configurações',
+      title: 'Settings',
       icon: Settings,
       path: '/settings',
       order: 7,
@@ -102,14 +103,12 @@ export function AppSidebar() {
         ) : (
           <div></div>
         )}
+        {/* Fixed hover issue for the menu button */}
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={toggleSidebar} 
-          className={cn(
-            "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-            sidebarCollapsed ? "h-10 w-10" : ""
-          )}
+          className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-10 h-10 flex items-center justify-center"
         >
           <Menu className="h-5 w-5" />
         </Button>

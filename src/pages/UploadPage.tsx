@@ -1,27 +1,19 @@
+
+import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { useStore } from "@/lib/store";
+import { UploadSkeleton } from "@/components/skeleton/UploadSkeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  Calendar, 
-  Globe, 
-  Lock, 
-  EyeOff,
-  Save,
-  Plus,
-  Trash2,
-} from "lucide-react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Select,
   SelectContent,
@@ -29,423 +21,480 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
-import { toast } from "sonner";
-import { v4 as uuidv4 } from 'uuid';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { 
+  Calendar as CalendarIcon, 
+  Globe, 
+  Lock, 
+  EyeOff,
+  Plus,
+  UploadCloud,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 import { format } from "date-fns";
+import { UploadTemplateCard } from "@/components/upload/UploadTemplateCard";
+import { UploadTemplateForm } from "@/components/upload/UploadTemplateForm";
+
+type UploadStatus = "idle" | "uploading" | "processing" | "complete" | "error";
 
 export default function UploadPage() {
-  const { 
-    sidebarCollapsed, 
-    channels = [], 
-    uploadTemplates,
-    addTemplate, 
-    updateTemplate,
-    removeTemplate,
-  } = useStore();
-  
-  // Template form
-  const [templateName, setTemplateName] = useState("");
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const { sidebarCollapsed, channels = [], uploadTemplates } = useStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [createTemplateOpen, setCreateTemplateOpen] = useState(false);
+
+  // Form fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
   const [visibility, setVisibility] = useState<"public" | "unlisted" | "private">("public");
-  const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
-  // Upload form
-  const [uploadTitle, setUploadTitle] = useState("");
-  const [uploadDescription, setUploadDescription] = useState("");
-  const [uploadTags, setUploadTags] = useState("");
-  const [uploadVisibility, setUploadVisibility] = useState<"public" | "unlisted" | "private">("public");
-  const [uploadScheduledDate, setUploadScheduledDate] = useState<Date | null>(null);
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  
-  // Safe access to channels
-  const safeChannels = Array.isArray(channels) ? channels : [];
-  const connectedChannels = safeChannels.filter(c => c && c.isConnected);
-  
-  const handleSaveTemplate = () => {
-    const template = {
-      id: uuidv4(),
-      channelId: selectedChannelId,
-      name: templateName,
-      title,
-      description,
-      tags: tags.split(',').map(tag => tag.trim()),
-      visibility,
-      scheduledDate,
-    };
-    
-    addTemplate(template);
-    toast.success("Template salvo com sucesso!");
-    setIsDialogOpen(false);
-    resetTemplateForm();
-  };
-  
-  const resetTemplateForm = () => {
-    setTemplateName("");
-    setSelectedChannelId(null);
-    setTitle("");
-    setDescription("");
-    setTags("");
-    setVisibility("public");
-    setScheduledDate(null);
-  };
-  
-  const handleApplyTemplate = (templateId: string) => {
-    const template = uploadTemplates.find(t => t.id === templateId);
-    if (template) {
-      setUploadTitle(template.title);
-      setUploadDescription(template.description);
-      setUploadTags(template.tags.join(', '));
-      setUploadVisibility(template.visibility);
-      setUploadScheduledDate(template.scheduledDate);
-      toast.success("Template aplicado com sucesso!");
+  const [publishDate, setPublishDate] = useState<Date | undefined>(undefined);
+  const [publishTime, setPublishTime] = useState("");
+  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
+  // Connected channels for selection
+  const connectedChannels = channels.filter(c => c && c.isConnected);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const newFiles = Array.from(e.dataTransfer.files);
+      handleFilesSelected(newFiles);
     }
   };
-  
-  const handleDeleteTemplate = (templateId: string) => {
-    removeTemplate(templateId);
-    toast.success("Template removido com sucesso!");
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      handleFilesSelected(newFiles);
+    }
   };
-  
+
+  const handleFilesSelected = (files: File[]) => {
+    if (uploadStatus === "uploading" || uploadStatus === "processing") {
+      toast.error("Please wait until the current upload is complete");
+      return;
+    }
+
+    // Filter for video files
+    const videoFiles = files.filter(file => file.type.startsWith('video/'));
+    if (videoFiles.length === 0) {
+      toast.error("Please select valid video files");
+      return;
+    }
+
+    setUploadedFiles([...uploadedFiles, ...videoFiles]);
+    
+    // Simulate upload process for the first file
+    if (videoFiles.length > 0 && uploadStatus === "idle") {
+      simulateUpload();
+    }
+  };
+
+  const simulateUpload = () => {
+    setUploadStatus("uploading");
+    setUploadProgress(0);
+    
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setUploadStatus("processing");
+          setTimeout(() => {
+            setUploadStatus("complete");
+            toast.success("Upload complete! Your video is now processing.");
+          }, 1500);
+          return 100;
+        }
+        return prev + 5;
+      });
+    }, 300);
+  };
+
   const handleUpload = () => {
-    // This would connect to YouTube API in the real implementation
-    toast.success("Vídeo enviado com sucesso!");
+    if (uploadedFiles.length === 0) {
+      toast.error("Please select a video to upload");
+      return;
+    }
+
+    if (!title) {
+      toast.error("Please enter a video title");
+      return;
+    }
+
+    toast.success("Your video details have been saved");
   };
+
+  const handleRemoveFile = (index: number) => {
+    const newFiles = [...uploadedFiles];
+    newFiles.splice(index, 1);
+    setUploadedFiles(newFiles);
+    
+    if (newFiles.length === 0) {
+      setUploadStatus("idle");
+      setUploadProgress(0);
+    }
+  };
+
+  const applyTemplate = (template: any) => {
+    setTitle(template.title);
+    setDescription(template.description);
+    setTags(template.tags.join(', '));
+    setVisibility(template.visibility);
+    if (template.scheduledDate) {
+      setPublishDate(new Date(template.scheduledDate));
+      setPublishTime(format(new Date(template.scheduledDate), "HH:mm"));
+    }
+    if (template.channelId) {
+      setSelectedChannelId(template.channelId);
+    }
+    toast.success("Template applied");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <AppHeader />
+        <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
+          <UploadSkeleton />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
       <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-6">Upload & Schedule</h1>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left column - Upload form */}
-            <div className="lg:col-span-2 space-y-6">
+        <h1 className="text-2xl font-bold tracking-tight mb-6">Upload & Schedule</h1>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Upload Drop Area */}
+            {uploadStatus === "idle" && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Upload de Vídeo</CardTitle>
-                  <CardDescription>Envie seu vídeo para o YouTube</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <Label htmlFor="video-file">Arquivo do Vídeo</Label>
-                    <div className="mt-2 flex items-center justify-center w-full">
-                      <label 
-                        htmlFor="video-file" 
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50"
-                      >
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <svg className="w-8 h-8 text-gray-500 mb-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                          </svg>
-                          <p className="mb-2 text-sm text-gray-500">
-                            <span className="font-semibold">Clique para carregar</span> ou arraste e solte
-                          </p>
-                          <p className="text-xs text-gray-500">MP4, MOV ou WEBM (MAX. 10GB)</p>
-                        </div>
-                        <input 
-                          id="video-file" 
-                          type="file" 
-                          className="hidden" 
-                          accept="video/mp4,video/webm,video/mov"
-                          onChange={(e) => setUploadFile(e.target.files ? e.target.files[0] : null)}
-                        />
-                      </label>
-                    </div>
-                    {uploadFile && (
-                      <p className="mt-2 text-sm text-gray-500">{uploadFile.name}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Título</Label>
-                    <Input 
-                      id="title" 
-                      placeholder="Digite o título do vídeo" 
-                      value={uploadTitle}
-                      onChange={(e) => setUploadTitle(e.target.value)}
+                <CardContent className="p-6">
+                  <div 
+                    className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-accent/10 transition-colors"
+                    onDragOver={(e) => e.preventDefault()}
+                    onDragEnter={(e) => e.preventDefault()}
+                    onDrop={handleFileDrop}
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                  >
+                    <input 
+                      type="file" 
+                      id="file-upload" 
+                      className="hidden" 
+                      accept="video/*" 
+                      multiple
+                      onChange={handleFileInputChange} 
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Descrição</Label>
-                    <Textarea 
-                      id="description" 
-                      placeholder="Digite a descrição do vídeo" 
-                      rows={5}
-                      value={uploadDescription}
-                      onChange={(e) => setUploadDescription(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
-                    <Input 
-                      id="tags" 
-                      placeholder="game, tutorial, gameplay" 
-                      value={uploadTags}
-                      onChange={(e) => setUploadTags(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Visibilidade</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      <Button 
-                        type="button" 
-                        variant={uploadVisibility === "public" ? "default" : "outline"}
-                        onClick={() => setUploadVisibility("public")}
-                        className="flex items-center"
-                      >
-                        <Globe className="h-4 w-4 mr-2" />
-                        Público
-                      </Button>
-                      <Button 
-                        type="button" 
-                        variant={uploadVisibility === "unlisted" ? "default" : "outline"}
-                        onClick={() => setUploadVisibility("unlisted")}
-                        className="flex items-center"
-                      >
-                        <EyeOff className="h-4 w-4 mr-2" />
-                        Não listado
-                      </Button>
-                      <Button 
-                        type="button" 
-                        variant={uploadVisibility === "private" ? "default" : "outline"}
-                        onClick={() => setUploadVisibility("private")}
-                        className="flex items-center"
-                      >
-                        <Lock className="h-4 w-4 mr-2" />
-                        Privado
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Programação</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={uploadScheduledDate ? "default" : "outline"}
-                            className="flex items-center justify-start"
-                          >
-                            <Calendar className="h-4 w-4 mr-2" />
-                            {uploadScheduledDate 
-                              ? format(uploadScheduledDate, "dd/MM/yyyy HH:mm")
-                              : "Selecionar data e hora"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <CalendarComponent
-                            mode="single"
-                            selected={uploadScheduledDate || undefined}
-                            onSelect={setUploadScheduledDate}
-                            initialFocus
-                          />
-                          <div className="p-3 border-t">
-                            <Label htmlFor="time">Hora</Label>
-                            <Input 
-                              id="time" 
-                              type="time" 
-                              className="mt-1"
-                              onChange={(e) => {
-                                if (uploadScheduledDate) {
-                                  const [hours, minutes] = e.target.value.split(':');
-                                  const newDate = new Date(uploadScheduledDate);
-                                  newDate.setHours(parseInt(hours), parseInt(minutes));
-                                  setUploadScheduledDate(newDate);
-                                } else {
-                                  const today = new Date();
-                                  const [hours, minutes] = e.target.value.split(':');
-                                  today.setHours(parseInt(hours), parseInt(minutes));
-                                  setUploadScheduledDate(today);
-                                }
-                              }}
-                            />
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                      {uploadScheduledDate && (
-                        <Button
-                          variant="outline"
-                          onClick={() => setUploadScheduledDate(null)}
-                        >
-                          Limpar data
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="channel">Canal</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um canal" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {connectedChannels.map(channel => (
-                          <SelectItem key={channel.id} value={channel.id}>
-                            {channel.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium mb-2">Drag and drop your videos here</h3>
+                    <p className="text-sm text-muted-foreground mb-4 text-center max-w-md">
+                      Support for MP4, MOV, AVI, and WebM formats. Maximum file size 10GB.
+                    </p>
+                    <Button>Select Files</Button>
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between flex-wrap gap-2">
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="flex items-center">
-                        <Save className="h-4 w-4 mr-2" />
-                        Salvar como Template
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Salvar Template</DialogTitle>
-                        <DialogDescription>
-                          Salve estas configurações como um template para uso futuro.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
+              </Card>
+            )}
+
+            {/* Upload Progress */}
+            {(uploadStatus === "uploading" || uploadStatus === "processing" || uploadStatus === "complete") && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Upload Progress</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {uploadedFiles.map((file, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <Badge variant={uploadStatus === "complete" ? "default" : "outline"}>
+                            {uploadStatus === "uploading" ? "Uploading" : 
+                             uploadStatus === "processing" ? "Processing" : "Complete"}
+                          </Badge>
+                          <span className="font-medium text-sm truncate max-w-[250px]">{file.name}</span>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-muted-foreground h-8 px-2"
+                          onClick={() => handleRemoveFile(index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Progress value={uploadProgress} className="flex-1" />
+                        <span className="text-xs text-muted-foreground w-10">{uploadProgress}%</span>
+                      </div>
+                      {uploadStatus === "processing" && (
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3 mr-1 animate-pulse" />
+                          Processing video, please wait...
+                        </div>
+                      )}
+                      {uploadStatus === "complete" && (
+                        <div className="flex items-center text-xs text-green-500">
+                          <Clock className="h-3 w-3 mr-1" />
+                          Video processed successfully
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Video Details Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Video Details</CardTitle>
+                <CardDescription>Fill out the information for your video</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Accordion type="multiple" defaultValue={["details"]}>
+                  <AccordionItem value="details">
+                    <AccordionTrigger>Basic Details</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
+                        <Input
+                          id="title"
+                          placeholder="Enter your video title"
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          placeholder="Enter your video description"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          rows={5}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tags">Tags (comma separated)</Label>
+                        <Input
+                          id="tags"
+                          placeholder="tutorial, programming, technology"
+                          value={tags}
+                          onChange={(e) => setTags(e.target.value)}
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="visibility">
+                    <AccordionTrigger>Visibility</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-4">
+                      <div className="flex flex-wrap gap-3">
+                        <Button
+                          type="button"
+                          variant={visibility === "public" ? "default" : "outline"}
+                          onClick={() => setVisibility("public")}
+                          className="flex items-center"
+                        >
+                          <Globe className="h-4 w-4 mr-2" />
+                          Public
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={visibility === "unlisted" ? "default" : "outline"}
+                          onClick={() => setVisibility("unlisted")}
+                          className="flex items-center"
+                        >
+                          <EyeOff className="h-4 w-4 mr-2" />
+                          Unlisted
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={visibility === "private" ? "default" : "outline"}
+                          onClick={() => setVisibility("private")}
+                          className="flex items-center"
+                        >
+                          <Lock className="h-4 w-4 mr-2" />
+                          Private
+                        </Button>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="scheduling">
+                    <AccordionTrigger>Scheduling</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="template-name">Nome do Template</Label>
-                          <Input 
-                            id="template-name" 
-                            placeholder="Ex: Gameplay padrão" 
-                            value={templateName}
-                            onChange={(e) => setTemplateName(e.target.value)}
-                          />
+                          <Label htmlFor="publishDate">Publish Date</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="w-full justify-start text-left"
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {publishDate ? format(publishDate, "PPP") : "Select date"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={publishDate}
+                                onSelect={setPublishDate}
+                                initialFocus
+                                className="p-3 pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="template-channel">Canal (opcional)</Label>
-                          <Select value={selectedChannelId || "global"} onValueChange={setSelectedChannelId}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Template global (todos os canais)" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="global">Template global (todos os canais)</SelectItem>
-                              {connectedChannels.map(channel => (
+                          <Label htmlFor="publishTime">Publish Time</Label>
+                          <Input
+                            id="publishTime"
+                            type="time"
+                            value={publishTime}
+                            onChange={(e) => setPublishTime(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      {publishDate && publishTime && (
+                        <div className="flex items-center text-sm">
+                          <Clock className="h-4 w-4 mr-2 text-primary" />
+                          Your video will be published on {format(publishDate, "PPPP")} at {publishTime}
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="channel">
+                    <AccordionTrigger>Channel</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="channel">Select Channel</Label>
+                        <Select value={selectedChannelId || ""} onValueChange={setSelectedChannelId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a channel" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {connectedChannels.length === 0 ? (
+                              <SelectItem value="no-channels" disabled>
+                                No connected channels
+                              </SelectItem>
+                            ) : (
+                              connectedChannels.map(channel => (
                                 <SelectItem key={channel.id} value={channel.id}>
                                   {channel.title}
                                 </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        {connectedChannels.length === 0 && (
+                          <div className="flex items-center text-sm text-amber-500 mt-2">
+                            <AlertCircle className="h-4 w-4 mr-2" />
+                            No channels connected. Please add a channel first.
+                          </div>
+                        )}
                       </div>
-                      <DialogFooter>
-                        <Button 
-                          variant="default"
-                          onClick={handleSaveTemplate}
-                          disabled={!templateName}
-                        >
-                          Salvar Template
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                  <Button 
-                    variant="default"
-                    onClick={handleUpload}
-                    disabled={!uploadFile || !uploadTitle}
-                  >
-                    Fazer Upload
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                
+                <div className="pt-4">
+                  <Button onClick={handleUpload} disabled={!title} className="w-full">
+                    Save & Upload
                   </Button>
-                </CardFooter>
-              </Card>
-            </div>
-            
-            {/* Right column - Templates */}
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Templates de Upload</CardTitle>
-                  <CardDescription>Templates salvos para reutilização</CardDescription>
-                </CardHeader>
-                <CardContent>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Templates Panel */}
+          <div>
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Upload Templates</CardTitle>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setCreateTemplateOpen(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" /> Create
+                  </Button>
+                </div>
+                <CardDescription>Save and reuse upload settings</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[500px] pr-4">
                   <div className="space-y-4">
                     {uploadTemplates.length === 0 ? (
-                      <div className="text-center p-4">
-                        <p className="text-muted-foreground mb-2">Nenhum template salvo</p>
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p>No templates saved yet</p>
                         <Button 
                           variant="outline" 
-                          size="sm"
-                          onClick={() => setIsDialogOpen(true)}
-                          className="flex items-center mx-auto"
+                          className="mt-4"
+                          onClick={() => setCreateTemplateOpen(true)}
                         >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Criar Template
+                          <Plus className="h-4 w-4 mr-2" /> Create Template
                         </Button>
                       </div>
                     ) : (
-                      uploadTemplates.map((template) => {
-                        const channelInfo = template.channelId 
-                          ? safeChannels.find(c => c.id === template.channelId) 
-                          : null;
-                          
-                        return (
-                          <Card key={template.id} className="overflow-hidden">
-                            <CardHeader className="p-4 pb-2">
-                              <div className="flex justify-between items-start">
-                                <CardTitle className="text-base">{template.name}</CardTitle>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleDeleteTemplate(template.id)}
-                                  className="h-6 w-6"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              {channelInfo && (
-                                <CardDescription className="flex items-center mt-1">
-                                  <Avatar className="h-4 w-4 mr-1">
-                                    <AvatarImage src={channelInfo.thumbnail} />
-                                    <AvatarFallback>{channelInfo.title[0]}</AvatarFallback>
-                                  </Avatar>
-                                  {channelInfo.title}
-                                </CardDescription>
-                              )}
-                            </CardHeader>
-                            <CardContent className="p-4 pt-0">
-                              <p className="text-sm truncate">{template.title}</p>
-                            </CardContent>
-                            <CardFooter className="p-4 pt-0">
-                              <Button
-                                variant="default"
-                                size="sm"
-                                className="w-full"
-                                onClick={() => handleApplyTemplate(template.id)}
-                              >
-                                Aplicar Template
-                              </Button>
-                            </CardFooter>
-                          </Card>
-                        );
-                      })
+                      uploadTemplates.map((template) => (
+                        <UploadTemplateCard 
+                          key={template.id}
+                          template={template} 
+                          channels={channels}
+                          onApply={() => applyTemplate(template)} 
+                        />
+                      ))
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
           </div>
         </div>
+
+        <UploadTemplateForm 
+          isOpen={createTemplateOpen} 
+          onClose={() => setCreateTemplateOpen(false)}
+          channels={connectedChannels}
+          initialValues={{
+            title,
+            description,
+            tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
+            visibility,
+            scheduledDate: publishDate,
+          }}
+        />
       </main>
     </div>
   );

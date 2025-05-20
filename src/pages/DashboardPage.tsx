@@ -5,9 +5,18 @@ import { DashboardSkeleton } from "@/components/skeleton/DashboardSkeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Users, TrendingUp, Clock, DollarSign, Eye, Info } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DashboardContentCalendar } from "@/components/dashboard/DashboardContentCalendar";
+import { DashboardPerformanceChart } from "@/components/dashboard/DashboardPerformanceChart";
 
 export default function DashboardPage() {
-  const { sidebarCollapsed } = useStore();
+  const { sidebarCollapsed, dateRange } = useStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +38,80 @@ export default function DashboardPage() {
     );
   }
 
+  // Sample data for the dashboard
+  const kpis = [
+    { 
+      title: "Views", 
+      value: "458.2K", 
+      change: "+5.7%",
+      icon: Eye,
+      tooltip: "Total video views across all channels"
+    },
+    { 
+      title: "Avg. CTR", 
+      value: "4.8%", 
+      change: "+0.3%",
+      icon: TrendingUp,
+      tooltip: "Click-through rate: percentage of impressions that led to views"
+    },
+    { 
+      title: "Subscribers", 
+      value: "12.4K", 
+      change: "+342",
+      icon: Users,
+      tooltip: "Total subscribers across all channels"
+    },
+    { 
+      title: "Watch Time", 
+      value: "32.8K hrs", 
+      change: "+2.1%",
+      icon: Clock,
+      tooltip: "Total time viewers spent watching your content"
+    },
+    { 
+      title: "Revenue Est.", 
+      value: "$5,280", 
+      change: "+$412",
+      icon: DollarSign,
+      tooltip: "Estimated revenue from all monetization sources"
+    }
+  ];
+
+  const recentUploads = [
+    {
+      id: 1,
+      thumbnail: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=150&h=100&fit=crop",
+      title: "How to Build a Full-Stack React Application in 2024",
+      channel: "Dev Channel",
+      views: "23.4K",
+      status: "Published"
+    },
+    {
+      id: 2,
+      thumbnail: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=150&h=100&fit=crop",
+      title: "10 JavaScript Tips You Need to Know",
+      channel: "Code Masters",
+      views: "18.7K",
+      status: "Published"
+    },
+    {
+      id: 3,
+      thumbnail: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=150&h=100&fit=crop",
+      title: "Mastering TypeScript - Advanced Patterns",
+      channel: "Dev Channel",
+      views: "12.9K",
+      status: "Published"
+    },
+    {
+      id: 4,
+      thumbnail: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&h=100&fit=crop",
+      title: "Docker for Beginners: Complete Guide",
+      channel: "Code Masters",
+      views: "9.2K",
+      status: "Processing"
+    }
+  ];
+
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
@@ -38,86 +121,128 @@ export default function DashboardPage() {
           <DateRangeFilter />
         </div>
 
-        <ScrollArea className="h-[calc(100vh-130px)] custom-scrollbar pr-4">
-          <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
-            <div className="lg:col-span-2 space-y-4">
-              {/* Recent uploads */}
-              <div className="border rounded-lg p-4">
-                <h2 className="text-xl font-semibold mb-4">Recent Uploads</h2>
-                <div className="space-y-4">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="flex gap-4 items-center p-2 hover:bg-muted rounded-md transition-colors cursor-pointer">
-                      <div className="w-24 h-16 bg-muted rounded-md flex items-center justify-center text-xs text-muted-foreground">
-                        Thumbnail {i + 1}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium">Example Video Title {i + 1}</h3>
-                        <div className="flex items-center text-sm text-muted-foreground mt-1">
-                          <span>Channel {i + 1}</span>
-                          <span className="mx-2">•</span>
-                          <span>{1250 * (i + 1)} views</span>
-                        </div>
-                      </div>
+        <ScrollArea className="h-[calc(100vh-130px)] pr-4 custom-scrollbar">
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
+            {kpis.map((kpi, index) => (
+              <Card key={index} className="bg-card hover:shadow-md transition-all">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="mt-1">
+                      <kpi.icon className="h-5 w-5 text-primary" />
                     </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Performance overview */}
-              <div className="border rounded-lg p-4">
-                <h2 className="text-xl font-semibold mb-4">Performance Overview</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {['Views', 'Watch Time', 'Subscribers', 'Revenue'].map((metric, i) => (
-                    <div key={i} className="p-3 border rounded-md">
-                      <div className="text-sm text-muted-foreground">{metric}</div>
-                      <div className="text-lg font-bold mt-1">
-                        {metric === 'Revenue' ? '$' : ''}{(i + 1) * 1250}
-                        {metric === 'Watch Time' ? 'h' : ''}
-                      </div>
-                      <div className="text-xs text-green-500 mt-1">+{(i + 1) * 5}% vs last period</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {/* Right column */}
-            <div className="space-y-4">
-              {/* Channel selection */}
-              <div className="border rounded-lg p-4">
-                <h2 className="text-xl font-semibold mb-4">Your Channels</h2>
-                <div className="space-y-2">
-                  {Array.from({ length: 2 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 p-2.5 hover:bg-accent rounded-md transition-colors cursor-pointer">
-                      <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
-                        C{i + 1}
-                      </div>
-                      <div>
-                        <div className="font-medium">Channel {i + 1}</div>
-                        <div className="text-xs text-muted-foreground">{(i + 1) * 10}K subscribers</div>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="flex items-center justify-center p-2.5 mt-2 border border-dashed rounded-md hover:bg-accent/50 cursor-pointer">
-                    <div className="text-sm text-muted-foreground">+ Add Channel</div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" className="h-6 w-6 p-0 hover:bg-transparent">
+                            <Info className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs">{kpi.tooltip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                </div>
-              </div>
-              
-              {/* Notifications */}
-              <div className="border rounded-lg p-4">
-                <h2 className="text-xl font-semibold mb-4">Notifications</h2>
-                <div className="space-y-3">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="text-sm p-2.5 border-b last:border-0">
-                      <div className="font-medium">New comment on your video</div>
-                      <div className="text-muted-foreground mt-1 text-xs">
-                        {Math.floor(Math.random() * 60)} minutes ago
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
+                    <h3 className="text-2xl font-bold mt-1">{kpi.value}</h3>
+                    <p className={`text-xs mt-1 ${kpi.change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
+                      {kpi.change} vs. last period
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Recent Uploads Table */}
+            <div className="lg:col-span-2">
+              <Card className="shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle>Recent Uploads</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[100px]">Thumbnail</TableHead>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Channel</TableHead>
+                        <TableHead>Views</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="w-[50px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentUploads.map((video) => (
+                        <TableRow key={video.id} className="cursor-pointer hover:bg-accent/50">
+                          <TableCell>
+                            <div className="h-14 w-24 rounded overflow-hidden">
+                              <img 
+                                src={video.thumbnail} 
+                                alt={video.title} 
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">{video.title}</TableCell>
+                          <TableCell>{video.channel}</TableCell>
+                          <TableCell>{video.views}</TableCell>
+                          <TableCell>
+                            <Badge variant={video.status === "Published" ? "default" : "outline"}>
+                              {video.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                  <span className="sr-only">Open menu</span>
+                                  <div className="flex flex-col gap-1 items-center">
+                                    <div className="h-1 w-1 rounded-full bg-foreground"></div>
+                                    <div className="h-1 w-1 rounded-full bg-foreground"></div>
+                                    <div className="h-1 w-1 rounded-full bg-foreground"></div>
+                                  </div>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem>View Analytics</DropdownMenuItem>
+                                <DropdownMenuItem>Edit Metadata</DropdownMenuItem>
+                                <DropdownMenuItem>Share</DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* Content Calendar */}
+              <Card className="mt-6">
+                <CardHeader className="pb-3">
+                  <CardTitle>Content Calendar</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DashboardContentCalendar />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Performance Overview */}
+            <div>
+              <Card className="shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle>Performance Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DashboardPerformanceChart />
+                </CardContent>
+              </Card>
             </div>
           </div>
         </ScrollArea>
