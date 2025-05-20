@@ -33,22 +33,23 @@ interface NavigationCommand extends CommandItem {
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
 
-  // Make sure component is fully mounted before rendering any cmdk elements
+  // Ensure the component is fully mounted before rendering any cmdk elements
   useEffect(() => {
-    // Use requestAnimationFrame to ensure we're in a stable browser environment
-    const timeout = setTimeout(() => {
-      setReady(true);
-    }, 0);
+    // This ensures we're in a browser environment and DOM is ready
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 100); // Small delay to ensure everything is fully ready
     
-    return () => clearTimeout(timeout);
+    return () => clearTimeout(timer);
   }, []);
 
   // Set up keyboard shortcut listener
   useEffect(() => {
-    if (!ready) return;
+    // Only add event listener if component is mounted
+    if (!mounted) return;
     
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -59,7 +60,7 @@ export function CommandPalette() {
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, [ready]);
+  }, [mounted]);
 
   const runCommand = (command: () => void) => {
     setOpen(false);
@@ -103,19 +104,21 @@ export function CommandPalette() {
     }
   ];
 
-  // Prevent any rendering until we're ready
-  if (!ready) {
+  // Only render when mounted and with proper checks
+  if (!mounted) {
     return null;
   }
 
   return (
     <>
-      {ready && (
-        <CommandDialog open={open} onOpenChange={setOpen}>
-          <CommandInput placeholder="Type a command or search..." />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            
+      {/* Only render when mounted is true */}
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Type a command or search..." />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          
+          {/* Make sure navigationCommands exists before mapping */}
+          {navigationCommands && navigationCommands.length > 0 && (
             <CommandGroup heading="Navigation">
               {navigationCommands.map((command, index) => (
                 <CommandItem
@@ -128,9 +131,12 @@ export function CommandPalette() {
                 </CommandItem>
               ))}
             </CommandGroup>
+          )}
 
-            <CommandSeparator />
-            
+          <CommandSeparator />
+          
+          {/* Make sure accountCommands exists before mapping */}
+          {accountCommands && accountCommands.length > 0 && (
             <CommandGroup heading="Account">
               {accountCommands.map((command, index) => (
                 <CommandItem
@@ -142,9 +148,9 @@ export function CommandPalette() {
                 </CommandItem>
               ))}
             </CommandGroup>
-          </CommandList>
-        </CommandDialog>
-      )}
+          )}
+        </CommandList>
+      </CommandDialog>
     </>
   );
 }
