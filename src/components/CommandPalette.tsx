@@ -2,16 +2,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  Settings,
-  Smile,
-  User,
   LayoutDashboard,
   Upload,
   BarChart2,
   MessageSquare,
+  Settings,
 } from "lucide-react";
 
 import {
@@ -26,31 +21,35 @@ import {
 } from "@/components/ui/command";
 
 // Define interfaces for our command types
-interface NavigationCommand {
+interface CommandItem {
   icon: React.ReactNode;
   label: string;
-  shortcut?: string;
   action: () => void;
 }
 
-interface AccountCommand {
-  icon: React.ReactNode;
-  label: string;
-  action: () => void;
+interface NavigationCommand extends CommandItem {
+  shortcut?: string;
 }
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [ready, setReady] = useState(false);
   const navigate = useNavigate();
 
-  // Mark component as mounted after first render
+  // Make sure component is fully mounted before rendering any cmdk elements
   useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
+    // Use requestAnimationFrame to ensure we're in a stable browser environment
+    const timeout = setTimeout(() => {
+      setReady(true);
+    }, 0);
+    
+    return () => clearTimeout(timeout);
   }, []);
 
+  // Set up keyboard shortcut listener
   useEffect(() => {
+    if (!ready) return;
+    
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -60,7 +59,7 @@ export function CommandPalette() {
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, []);
+  }, [ready]);
 
   const runCommand = (command: () => void) => {
     setOpen(false);
@@ -96,7 +95,7 @@ export function CommandPalette() {
   ];
 
   // Define account commands
-  const accountCommands: AccountCommand[] = [
+  const accountCommands: CommandItem[] = [
     {
       icon: <Settings className="mr-2 h-4 w-4" />,
       label: "Settings",
@@ -104,17 +103,19 @@ export function CommandPalette() {
     }
   ];
 
-  // Only render the command dialog if component is mounted to ensure client-side rendering
-  if (!mounted) return null;
+  // Prevent any rendering until we're ready
+  if (!ready) {
+    return null;
+  }
 
   return (
     <>
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          
-          {navigationCommands.length > 0 && (
+      {ready && (
+        <CommandDialog open={open} onOpenChange={setOpen}>
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            
             <CommandGroup heading="Navigation">
               {navigationCommands.map((command, index) => (
                 <CommandItem
@@ -127,11 +128,9 @@ export function CommandPalette() {
                 </CommandItem>
               ))}
             </CommandGroup>
-          )}
 
-          <CommandSeparator />
-          
-          {accountCommands.length > 0 && (
+            <CommandSeparator />
+            
             <CommandGroup heading="Account">
               {accountCommands.map((command, index) => (
                 <CommandItem
@@ -143,9 +142,9 @@ export function CommandPalette() {
                 </CommandItem>
               ))}
             </CommandGroup>
-          )}
-        </CommandList>
-      </CommandDialog>
+          </CommandList>
+        </CommandDialog>
+      )}
     </>
   );
 }
