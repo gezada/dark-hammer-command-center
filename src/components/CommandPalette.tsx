@@ -25,6 +25,20 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 
+// Define interfaces for our command types
+interface NavigationCommand {
+  icon: React.ReactNode;
+  label: string;
+  shortcut?: string;
+  action: () => void;
+}
+
+interface AccountCommand {
+  icon: React.ReactNode;
+  label: string;
+  action: () => void;
+}
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -47,7 +61,7 @@ export function CommandPalette() {
   };
 
   // Create navigation commands ahead of time to avoid undefined
-  const navigationCommands = [
+  const navigationCommands: NavigationCommand[] = [
     {
       icon: <LayoutDashboard className="mr-2 h-4 w-4" />,
       label: "Go to Dashboard",
@@ -74,7 +88,7 @@ export function CommandPalette() {
     }
   ];
 
-  const accountCommands = [
+  const accountCommands: AccountCommand[] = [
     {
       icon: <Settings className="mr-2 h-4 w-4" />,
       label: "Settings",
@@ -111,7 +125,6 @@ export function CommandPalette() {
             >
               {command.icon}
               <span>{command.label}</span>
-              {command.shortcut && <CommandShortcut>{command.shortcut}</CommandShortcut>}
             </CommandItem>
           ))}
         </CommandGroup>
