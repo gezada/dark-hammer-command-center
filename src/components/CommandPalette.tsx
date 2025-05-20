@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Command } from "cmdk";
 import {
   Calculator,
   Calendar,
@@ -47,6 +46,42 @@ export function CommandPalette() {
     command();
   };
 
+  // Create navigation commands ahead of time to avoid undefined
+  const navigationCommands = [
+    {
+      icon: <LayoutDashboard className="mr-2 h-4 w-4" />,
+      label: "Go to Dashboard",
+      shortcut: "G D",
+      action: () => navigate("/dashboard")
+    },
+    {
+      icon: <Upload className="mr-2 h-4 w-4" />,
+      label: "Go to Upload & Schedule",
+      shortcut: "G U",
+      action: () => navigate("/upload")
+    },
+    {
+      icon: <BarChart2 className="mr-2 h-4 w-4" />,
+      label: "Go to Analytics",
+      shortcut: "G A",
+      action: () => navigate("/analytics")
+    },
+    {
+      icon: <MessageSquare className="mr-2 h-4 w-4" />,
+      label: "Go to Comments",
+      shortcut: "G C",
+      action: () => navigate("/comments")
+    }
+  ];
+
+  const accountCommands = [
+    {
+      icon: <Settings className="mr-2 h-4 w-4" />,
+      label: "Settings",
+      action: () => navigate("/settings")
+    }
+  ];
+
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder="Type a command or search..." />
@@ -54,45 +89,31 @@ export function CommandPalette() {
         <CommandEmpty>No results found.</CommandEmpty>
 
         <CommandGroup heading="Navigation">
-          <CommandItem
-            onSelect={() => runCommand(() => navigate("/dashboard"))}
-          >
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            <span>Go to Dashboard</span>
-            <CommandShortcut>G D</CommandShortcut>
-          </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => navigate("/upload"))}
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            <span>Go to Upload & Schedule</span>
-            <CommandShortcut>G U</CommandShortcut>
-          </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => navigate("/analytics"))}
-          >
-            <BarChart2 className="mr-2 h-4 w-4" />
-            <span>Go to Analytics</span>
-            <CommandShortcut>G A</CommandShortcut>
-          </CommandItem>
-          <CommandItem
-            onSelect={() => runCommand(() => navigate("/comments"))}
-          >
-            <MessageSquare className="mr-2 h-4 w-4" />
-            <span>Go to Comments</span>
-            <CommandShortcut>G C</CommandShortcut>
-          </CommandItem>
+          {navigationCommands.map((command, index) => (
+            <CommandItem
+              key={`nav-${index}`}
+              onSelect={() => runCommand(command.action)}
+            >
+              {command.icon}
+              <span>{command.label}</span>
+              {command.shortcut && <CommandShortcut>{command.shortcut}</CommandShortcut>}
+            </CommandItem>
+          ))}
         </CommandGroup>
 
         <CommandSeparator />
 
         <CommandGroup heading="Account">
-          <CommandItem
-            onSelect={() => runCommand(() => navigate("/settings"))}
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-          </CommandItem>
+          {accountCommands.map((command, index) => (
+            <CommandItem
+              key={`account-${index}`}
+              onSelect={() => runCommand(command.action)}
+            >
+              {command.icon}
+              <span>{command.label}</span>
+              {command.shortcut && <CommandShortcut>{command.shortcut}</CommandShortcut>}
+            </CommandItem>
+          ))}
         </CommandGroup>
       </CommandList>
     </CommandDialog>
