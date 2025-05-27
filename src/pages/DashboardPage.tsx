@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const { sidebarCollapsed, channels, selectedChannelId, setSelectedChannelId } = useStore();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTimeRange, setSelectedTimeRange] = useState("28d");
+  const [activeKPI, setActiveKPI] = useState("revenue"); // Track active KPI
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -42,6 +43,7 @@ export default function DashboardPage() {
   // Updated KPI data with better values
   const kpis = [
     { 
+      id: "views",
       title: "Views", 
       value: "458.2K", 
       change: "+5.7%",
@@ -49,6 +51,7 @@ export default function DashboardPage() {
       tooltip: "Total video views across all channels"
     },
     { 
+      id: "ctr",
       title: "Avg. CTR", 
       value: "4.8%", 
       change: "+0.3%",
@@ -56,6 +59,7 @@ export default function DashboardPage() {
       tooltip: "Avg. CTR – percentage of impressions that turned into views"
     },
     { 
+      id: "subscribers",
       title: "Subscribers", 
       value: "12.4K", 
       change: "+342",
@@ -63,6 +67,7 @@ export default function DashboardPage() {
       tooltip: "Total subscribers across all channels"
     },
     { 
+      id: "watchtime",
       title: "Watch Time", 
       value: "32.8K hrs", 
       change: "+2.1%",
@@ -70,6 +75,7 @@ export default function DashboardPage() {
       tooltip: "Total time viewers spent watching your content"
     },
     { 
+      id: "revenue",
       title: "Revenue Est.", 
       value: "$5,280", 
       change: "+$412",
@@ -79,10 +85,10 @@ export default function DashboardPage() {
   ];
 
   const timeRanges = [
-    { value: "7d", label: "7 days" },
-    { value: "28d", label: "28 days" },
-    { value: "90d", label: "90 days" },
-    { value: "365d", label: "365 days" },
+    { value: "7d", label: "7d" },
+    { value: "28d", label: "28d" },
+    { value: "90d", label: "90d" },
+    { value: "365d", label: "365d" },
     { value: "may2025", label: "May 2025" },
     { value: "all", label: "All time" }
   ];
@@ -122,16 +128,6 @@ export default function DashboardPage() {
     }
   ];
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "Published": return "default";
-      case "Scheduled": return "secondary";
-      case "Processing": return "outline";
-      case "Error": return "destructive";
-      default: return "outline";
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Published": return "bg-red-600 text-white";
@@ -143,28 +139,34 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#121212]">
+    <div className="min-h-screen flex flex-col bg-background">
       <AppHeader />
       <main className={`flex-1 p-6 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-[72px]' : 'ml-[240px]'}`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-          <h1 className="text-2xl font-bold tracking-tight text-white">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         </div>
 
         <ScrollArea className="h-[calc(100vh-130px)] pr-4 custom-scrollbar">
           {/* KPI Cards Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
             {kpis.map((kpi, index) => (
-              <Card key={index} className="bg-[#1A1A1A] border-[#2A2A2A] hover:shadow-lg hover:shadow-red-500/10 transition-all duration-200 hover:-translate-y-1">
+              <Card 
+                key={index} 
+                className="bg-card border-border hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer"
+                onClick={() => setActiveKPI(kpi.id)}
+              >
                 <CardContent className="p-3">
                   <div className="flex justify-between items-start mb-2">
-                    <div className="p-2 bg-red-600/10 rounded-lg">
+                    <div className={`p-2 bg-red-600/10 rounded-lg transition-all duration-200 ${
+                      activeKPI === kpi.id ? 'ring-2 ring-red-500' : ''
+                    }`}>
                       <kpi.icon className="h-4 w-4 text-red-500" />
                     </div>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button variant="ghost" className="h-6 w-6 p-0 hover:bg-transparent">
-                            <Info className="h-3 w-3 text-gray-400" />
+                            <Info className="h-4 w-4 text-muted-foreground" aria-label={`Information about ${kpi.title}`} />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -174,8 +176,8 @@ export default function DashboardPage() {
                     </TooltipProvider>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-gray-400 mb-1">{kpi.title}</p>
-                    <h3 className="text-xl font-bold text-white mb-1">{kpi.value}</h3>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{kpi.title}</p>
+                    <h3 className="text-xl font-bold mb-1">{kpi.value}</h3>
                     <p className={`text-xs ${kpi.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
                       {kpi.change} vs last period
                     </p>
@@ -185,32 +187,33 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Filter Row */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="flex flex-wrap gap-2">
+          {/* Filter Row - Improved spacing and layout */}
+          <div className="flex flex-col sm:flex-row gap-6 mb-6 items-start sm:items-center justify-between">
+            <div className="flex flex-wrap gap-6">
               {timeRanges.map((range) => (
                 <Button
                   key={range.value}
-                  variant={selectedTimeRange === range.value ? "default" : "outline"}
+                  variant={selectedTimeRange === range.value ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setSelectedTimeRange(range.value)}
-                  className={selectedTimeRange === range.value ? 
+                  className={`transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-purple-500 ${
+                    selectedTimeRange === range.value ? 
                     "bg-red-600 hover:bg-red-700 text-white" : 
-                    "border-[#2A2A2A] text-gray-300 hover:bg-[#2A2A2A]"
-                  }
+                    "text-foreground hover:bg-accent hover:text-accent-foreground"
+                  }`}
                 >
                   {range.label}
                 </Button>
               ))}
             </div>
             <Select value={selectedChannelId || "all"} onValueChange={(value) => setSelectedChannelId(value === "all" ? null : value)}>
-              <SelectTrigger className="w-[200px] border-[#2A2A2A] bg-[#1A1A1A] text-white">
+              <SelectTrigger className="w-[200px] border-border bg-card focus-visible:ring-2 focus-visible:ring-purple-500">
                 <SelectValue placeholder="All Channels" />
               </SelectTrigger>
-              <SelectContent className="bg-[#1A1A1A] border-[#2A2A2A]">
-                <SelectItem value="all" className="text-white hover:bg-[#2A2A2A]">All Channels</SelectItem>
+              <SelectContent className="bg-popover border-border">
+                <SelectItem value="all" className="hover:bg-accent">All Channels</SelectItem>
                 {channels?.map((channel) => (
-                  <SelectItem key={channel.id} value={channel.id} className="text-white hover:bg-[#2A2A2A]">
+                  <SelectItem key={channel.id} value={channel.id} className="hover:bg-accent">
                     {channel.title}
                   </SelectItem>
                 ))}
@@ -218,31 +221,34 @@ export default function DashboardPage() {
             </Select>
           </div>
 
-          {/* Main Content Grid */}
+          {/* Main Content Grid - Improved spacing */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Recent Uploads Table - 66% width */}
             <div className="lg:col-span-2">
-              <Card className="bg-[#1A1A1A] border-[#2A2A2A]">
+              <Card className="bg-card border-border">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-white">Recent Uploads</CardTitle>
+                  <CardTitle>Recent Uploads</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-[#2A2A2A]">
-                        <TableHead className="w-[100px] text-gray-400">Thumbnail</TableHead>
-                        <TableHead className="text-gray-400">Title</TableHead>
-                        <TableHead className="text-gray-400">Channel</TableHead>
-                        <TableHead className="text-gray-400">Views</TableHead>
-                        <TableHead className="text-gray-400">Status</TableHead>
-                        <TableHead className="w-[50px] text-gray-400">Actions</TableHead>
+                      <TableRow className="border-border">
+                        <TableHead className="w-[100px] text-muted-foreground">Thumbnail</TableHead>
+                        <TableHead className="text-muted-foreground">Title</TableHead>
+                        <TableHead className="text-muted-foreground">Channel</TableHead>
+                        <TableHead className="text-muted-foreground">Views</TableHead>
+                        <TableHead className="text-muted-foreground">Status</TableHead>
+                        <TableHead className="w-[50px] text-muted-foreground">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {recentUploads.map((video) => (
-                        <TableRow key={video.id} className="border-[#2A2A2A] hover:bg-[#2A2A2A]/50 transition-colors group">
-                          <TableCell>
-                            <div className="h-14 w-24 rounded overflow-hidden">
+                        <TableRow 
+                          key={video.id} 
+                          className="border-border hover:bg-muted/50 transition-all duration-200 ease-out group h-14 focus-visible:ring-2 focus-visible:ring-purple-500"
+                        >
+                          <TableCell className="py-2">
+                            <div className="h-10 w-16 rounded overflow-hidden flex items-center justify-center">
                               <img 
                                 src={video.thumbnail} 
                                 alt={video.title} 
@@ -250,38 +256,38 @@ export default function DashboardPage() {
                               />
                             </div>
                           </TableCell>
-                          <TableCell className="font-medium text-white max-w-[300px]">
+                          <TableCell className="font-medium max-w-[300px] py-2">
                             <div className="truncate">{video.title}</div>
                           </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="border-[#2A2A2A] text-gray-300">
+                          <TableCell className="py-2">
+                            <Badge variant="outline" className="border-border text-muted-foreground">
                               {video.channel}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-gray-300">{video.views}</TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(video.status)}>
+                          <TableCell className="py-2">{video.views}</TableCell>
+                          <TableCell className="py-2">
+                            <Badge className={`transition-all duration-200 ease-out ${getStatusColor(video.status)}`}>
                               {video.status}
                             </Badge>
                           </TableCell>
-                          <TableCell>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <TableCell className="py-2">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" className="h-8 w-8 p-0 text-gray-400 hover:text-white">
+                                  <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-purple-500">
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="bg-[#1A1A1A] border-[#2A2A2A]">
-                                  <DropdownMenuItem className="text-white hover:bg-[#2A2A2A]">
+                                <DropdownMenuContent align="end" className="bg-popover border-border">
+                                  <DropdownMenuItem className="hover:bg-accent focus-visible:ring-2 focus-visible:ring-purple-500">
                                     <Play className="mr-2 h-4 w-4" />
                                     View
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem className="text-white hover:bg-[#2A2A2A]">
+                                  <DropdownMenuItem className="hover:bg-accent focus-visible:ring-2 focus-visible:ring-purple-500">
                                     <Edit className="mr-2 h-4 w-4" />
                                     Edit
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem className="text-red-400 hover:bg-[#2A2A2A]">
+                                  <DropdownMenuItem className="text-red-400 hover:bg-accent focus-visible:ring-2 focus-visible:ring-purple-500">
                                     <Trash className="mr-2 h-4 w-4" />
                                     Delete
                                   </DropdownMenuItem>
@@ -297,14 +303,19 @@ export default function DashboardPage() {
               </Card>
 
               {/* Content Calendar */}
-              <Card className="mt-6 bg-[#1A1A1A] border-[#2A2A2A]">
+              <Card className="mt-6 bg-card border-border">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="text-white">Content Calendar</CardTitle>
+                    <CardTitle>Content Calendar</CardTitle>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="outline" size="sm" disabled className="border-[#2A2A2A] text-gray-500">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            disabled 
+                            className="border border-border text-muted-foreground transition-all duration-200 ease-out hover:bg-accent focus-visible:ring-2 focus-visible:ring-purple-500"
+                          >
                             Optimize Time
                           </Button>
                         </TooltipTrigger>
@@ -323,9 +334,9 @@ export default function DashboardPage() {
 
             {/* Performance Overview - 34% width */}
             <div>
-              <Card className="bg-[#1A1A1A] border-[#2A2A2A]">
+              <Card className="bg-card border-border">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-white">Performance Overview</CardTitle>
+                  <CardTitle>Performance Overview</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <DashboardPerformanceChart />

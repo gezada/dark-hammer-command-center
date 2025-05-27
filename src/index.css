@@ -39,7 +39,7 @@
   .light {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
+    --card: 0 0% 96%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
@@ -75,6 +75,16 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Focus-visible styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-purple-500 ring-offset-2 ring-offset-background;
+  }
+
+  /* Improved hover states */
+  .hover-lift {
+    @apply transition-all duration-200 ease-out hover:-translate-y-1;
   }
 }
 
@@ -128,5 +138,14 @@
   
   .dark .custom-scrollbar {
     --sb-thumb: hsl(var(--muted) / 0.3);
+  }
+
+  /* Enhanced animations and transitions */
+  .animate-hover {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .animate-focus {
+    @apply transition-all duration-200 ease-out;
   }
 }

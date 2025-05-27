@@ -2,6 +2,7 @@
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Metric = {
   name: string;
@@ -11,6 +12,7 @@ type Metric = {
   }[];
   color: string;
   change: string;
+  description: string;
 };
 
 export function DashboardPerformanceChart() {
@@ -28,7 +30,8 @@ export function DashboardPerformanceChart() {
         { name: "Sun", value: 7000 }
       ],
       color: "#3B82F6",
-      change: "+12%"
+      change: "+12%",
+      description: "Increase in video views compared to last period"
     },
     {
       name: "Watch Time",
@@ -42,7 +45,8 @@ export function DashboardPerformanceChart() {
         { name: "Sun", value: 2000 }
       ],
       color: "#10B981",
-      change: "+8%"
+      change: "+8%",
+      description: "Increase in total watch time hours"
     },
     {
       name: "CTR",
@@ -56,7 +60,8 @@ export function DashboardPerformanceChart() {
         { name: "Sun", value: 5.2 }
       ],
       color: "#F59E0B",
-      change: "+5%"
+      change: "+5%",
+      description: "Improvement in click-through rate"
     },
     {
       name: "Revenue",
@@ -70,25 +75,40 @@ export function DashboardPerformanceChart() {
         { name: "Sun", value: 190 }
       ],
       color: "#EC4899",
-      change: "+15%"
+      change: "+15%",
+      description: "Increase in estimated revenue"
     }
   ];
 
   return (
     <div className="space-y-4">
       {metrics.map((metric) => (
-        <Card key={metric.name} className="bg-[#2A2A2A]/30 border-[#2A2A2A] hover:bg-[#2A2A2A]/50 transition-colors">
-          <CardContent className="p-4">
+        <Card 
+          key={metric.name} 
+          className="bg-card/30 border-border hover:bg-card/50 transition-all duration-200 ease-out w-[200px]"
+        >
+          <CardContent className="p-4 relative">
             <div className="flex justify-between items-center mb-3">
-              <span className="font-medium text-sm text-white">{metric.name}</span>
-              <Badge 
-                variant="outline" 
-                className={`text-xs border-green-400/20 ${
-                  metric.change.startsWith('+') ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'
-                }`}
-              >
-                {metric.change}
-              </Badge>
+              <span className="font-medium text-sm">{metric.name}</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="absolute top-2 right-2 z-10">
+                      <Badge 
+                        variant="outline" 
+                        className={`text-xs border-green-400/20 bg-black/50 backdrop-blur-sm transition-all duration-200 ease-out hover:bg-black/70 ${
+                          metric.change.startsWith('+') ? 'text-green-400 border-green-400/20' : 'text-red-400 border-red-400/20'
+                        }`}
+                      >
+                        {metric.change}
+                      </Badge>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">{metric.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <div className="h-16">
               <ResponsiveContainer width="100%" height="100%">
