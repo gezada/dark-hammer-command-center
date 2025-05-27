@@ -124,7 +124,11 @@ export default function AnalyticsPage() {
             <CardHeader className="pb-0">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <CardTitle>Performance Analytics</CardTitle>
-                <ToggleGroup type="single" value={chartType} onValueChange={(value) => value && setChartType(value as "line" | "area")}>
+                <ToggleGroup type="single" value={chartType} onValueChange={(value) => {
+                  if (value === "line" || value === "area") {
+                    setChartType(value);
+                  }
+                }}>
                   <ToggleGroupItem value="line">Line</ToggleGroupItem>
                   <ToggleGroupItem value="area">Area</ToggleGroupItem>
                 </ToggleGroup>
