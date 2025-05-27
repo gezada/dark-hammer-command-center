@@ -56,35 +56,35 @@ export function DashboardContentCalendar() {
     switch (status) {
       case "Published": return "bg-red-600 text-white";
       case "Scheduled": return "bg-yellow-600 text-white";
-      case "Processing": return "bg-gray-600 text-white";
-      default: return "bg-gray-600 text-white";
+      case "Processing": return "bg-neutral-600 text-white";
+      default: return "bg-neutral-600 text-white";
     }
   };
 
   return (
     <div className="space-y-4">
       <Tabs defaultValue="calendar" onValueChange={(value) => setView(value as "calendar" | "list")}>
-        <TabsList className="bg-muted border-border">
+        <TabsList className="bg-neutral-800 border-neutral-700">
           <TabsTrigger 
             value="calendar" 
-            className="data-[state=active]:bg-red-600 data-[state=active]:text-white text-muted-foreground transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-purple-500"
+            className="data-[state=active]:bg-red-600 data-[state=active]:text-white text-neutral-400 transition-all duration-200 ease-out"
           >
             Calendar View
           </TabsTrigger>
           <TabsTrigger 
             value="list" 
-            className="data-[state=active]:bg-red-600 data-[state=active]:text-white text-muted-foreground transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-purple-500"
+            className="data-[state=active]:bg-red-600 data-[state=active]:text-white text-neutral-400 transition-all duration-200 ease-out"
           >
             List View
           </TabsTrigger>
         </TabsList>
         
         <TabsContent value="calendar" className="p-0">
-          <Card className="border-border bg-card/20">
+          <Card className="border-neutral-700 bg-neutral-800/50">
             <CardContent className="p-4">
               <Calendar 
                 mode="single"
-                className="rounded-md border-border [&_.rdp-day]:text-foreground [&_.rdp-head_cell]:text-muted-foreground [&_.rdp-day_selected]:bg-muted [&_.rdp-day_selected]:rounded"
+                className="rounded-md border-neutral-700 [&_.rdp-day]:text-neutral-300 [&_.rdp-head_cell]:text-neutral-400 [&_.rdp-day_selected]:bg-red-600 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected]:rounded"
                 modifiers={{ hasEvent: isDayWithEvent }}
                 modifiersClassNames={{
                   hasEvent: "relative before:absolute before:bottom-1 before:left-1/2 before:transform before:-translate-x-1/2 before:h-1 before:w-1 before:bg-red-500 before:rounded-full"
@@ -95,22 +95,22 @@ export function DashboardContentCalendar() {
         </TabsContent>
         
         <TabsContent value="list" className="p-0">
-          <Card className="border-border bg-card/20">
+          <Card className="border-neutral-700 bg-neutral-800/50">
             <CardContent className="p-4 space-y-3">
               {events.map((event) => (
                 <div 
                   key={event.id} 
-                  className="flex items-center justify-between p-3 border border-border rounded-md hover:bg-muted/50 cursor-pointer transition-all duration-200 ease-out group focus-visible:ring-2 focus-visible:ring-purple-500"
+                  className="flex items-center justify-between p-3 border border-neutral-700 rounded-md hover:bg-neutral-700/50 cursor-pointer transition-all duration-200 ease-out group"
                 >
                   <div className="space-y-1 flex-1">
-                    <h4 className="font-medium text-sm group-hover:text-red-400 transition-colors duration-200">
+                    <h4 className="font-medium text-sm text-white group-hover:text-red-400 transition-colors duration-200">
                       {event.title}
                     </h4>
                     <div className="flex items-center space-x-3">
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-neutral-400">
                         {event.date.toLocaleDateString()} · {event.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </span>
-                      <Badge variant="outline" className="text-xs border-border text-muted-foreground">
+                      <Badge variant="outline" className="text-xs bg-neutral-700 text-neutral-300 border-neutral-600">
                         {event.channel}
                       </Badge>
                       <Badge className={`text-xs transition-all duration-200 ease-out ${getStatusColor(event.status)}`}>

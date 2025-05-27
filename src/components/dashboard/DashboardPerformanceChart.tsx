@@ -81,23 +81,23 @@ export function DashboardPerformanceChart() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {metrics.map((metric) => (
         <Card 
           key={metric.name} 
-          className="bg-card/30 border-border hover:bg-card/50 transition-all duration-200 ease-out w-[200px]"
+          className="bg-neutral-800 border-neutral-700 hover:bg-neutral-750 transition-all duration-200 ease-out w-[200px]"
         >
-          <CardContent className="p-4 relative">
-            <div className="flex justify-between items-center mb-3">
-              <span className="font-medium text-sm">{metric.name}</span>
+          <CardContent className="p-3 relative">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-medium text-sm text-white">{metric.name}</span>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="absolute top-2 right-2 z-10">
                       <Badge 
                         variant="outline" 
-                        className={`text-xs border-green-400/20 bg-black/50 backdrop-blur-sm transition-all duration-200 ease-out hover:bg-black/70 ${
-                          metric.change.startsWith('+') ? 'text-green-400 border-green-400/20' : 'text-red-400 border-red-400/20'
+                        className={`text-xs bg-black/60 backdrop-blur-sm border-transparent transition-all duration-200 ease-out hover:bg-black/80 ${
+                          metric.change.startsWith('+') ? 'text-green-400' : 'text-red-400'
                         }`}
                       >
                         {metric.change}
@@ -105,12 +105,12 @@ export function DashboardPerformanceChart() {
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="text-xs">{metric.description}</p>
+                    <p className="text-xs max-w-[200px]">{metric.description}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <div className="h-16">
+            <div className="h-12">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={metric.data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                   <defs>
