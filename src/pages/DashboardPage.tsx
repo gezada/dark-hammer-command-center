@@ -1,22 +1,20 @@
 
 import { AppHeader } from "@/components/AppHeader";
 import { DashboardSkeleton } from "@/components/skeleton/DashboardSkeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Users, TrendingUp, Clock, DollarSign, Eye, Info, MoreHorizontal, Edit, Trash, Play } from "lucide-react";
+import { MoreHorizontal, Edit, Trash, Play } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DashboardContentCalendar } from "@/components/dashboard/DashboardContentCalendar";
 import { DashboardPerformanceChart } from "@/components/dashboard/DashboardPerformanceChart";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DashboardKPICards } from "@/components/dashboard/DashboardKPICards";
+import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 
 export default function DashboardPage() {
-  const { sidebarCollapsed, channels, selectedChannelId, setSelectedChannelId, theme } = useStore();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTimeRange, setSelectedTimeRange] = useState("28d");
 
@@ -32,65 +30,12 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <AppHeader />
-        <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[72px]' : 'ml-[240px]'}`}>
+        <main className="flex-1 p-6 overflow-auto mt-16">
           <DashboardSkeleton />
         </main>
       </div>
     );
   }
-
-  // KPI data
-  const kpis = [
-    { 
-      id: "views",
-      title: "Views", 
-      value: "458.2K", 
-      change: "+5.7%",
-      icon: Eye,
-      tooltip: "Total video views across all channels"
-    },
-    { 
-      id: "ctr",
-      title: "Avg. CTR", 
-      value: "4.8%", 
-      change: "+0.3%",
-      icon: TrendingUp,
-      tooltip: "Average click-through rate - percentage of impressions that turned into views"
-    },
-    { 
-      id: "subscribers",
-      title: "Subscribers", 
-      value: "12.4K", 
-      change: "+342",
-      icon: Users,
-      tooltip: "Total subscribers across all channels"
-    },
-    { 
-      id: "watchtime",
-      title: "Watch Time", 
-      value: "32.8K hrs", 
-      change: "+2.1%",
-      icon: Clock,
-      tooltip: "Total time viewers spent watching your content"
-    },
-    { 
-      id: "revenue",
-      title: "Revenue Est.", 
-      value: "$5,280", 
-      change: "+$412",
-      icon: DollarSign,
-      tooltip: "Estimated revenue from all monetization sources"
-    }
-  ];
-
-  const timeRanges = [
-    { value: "7d", label: "7d" },
-    { value: "28d", label: "28d" },
-    { value: "90d", label: "90d" },
-    { value: "365d", label: "365d" },
-    { value: "may2025", label: "May 2025" },
-    { value: "all", label: "All time" }
-  ];
 
   const recentUploads = [
     {
@@ -129,105 +74,52 @@ export default function DashboardPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Published": return "bg-red-600 text-white";
-      case "Scheduled": return "bg-yellow-600 text-white";
-      case "Processing": return "bg-neutral-600 text-white";
-      case "Error": return "bg-purple-600 text-white";
-      default: return "bg-neutral-600 text-white";
+      case "Published": 
+        return { bg: "#16a34a20", text: "#16a34a" };
+      case "Scheduled": 
+        return { bg: "#facc1520", text: "#facc15" };
+      case "Processing": 
+        return { bg: "#64748b20", text: "#64748b" };
+      default: 
+        return { bg: "#64748b20", text: "#64748b" };
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col">
       <AppHeader />
-      <main className={`flex-1 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-[72px]' : 'ml-[240px]'}`}>
-        <section className="max-w-7xl mx-auto px-4 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+      <main 
+        className="flex-1 mt-16 transition-all duration-300"
+        style={{ paddingLeft: 'max(0px, var(--sidebar-width))' }}
+      >
+        <section className="max-w-7xl mx-auto px-4 lg:px-8 py-6 flex flex-col gap-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h1 className="text-2xl font-semibold tracking-tight">Central de Controle Universal</h1>
           </div>
 
-          <ScrollArea className="h-[calc(100vh-160px)] pr-4">
-            {/* KPI Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-              {kpis.map((kpi) => (
-                <Card 
-                  key={kpi.id} 
-                  className="bg-card border border-border hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
-                >
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="p-2 bg-red-600/10 rounded-lg">
-                        <kpi.icon className="h-4 w-4 text-red-500" />
-                      </div>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button variant="ghost" className="h-6 w-6 p-0 hover:bg-transparent">
-                              <Info className="h-4 w-4 text-muted-foreground" aria-label={`Information about ${kpi.title}`} />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs max-w-[200px]">{kpi.tooltip}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground mb-1">{kpi.title}</p>
-                      <h3 className="text-2xl font-bold mb-1">{kpi.value}</h3>
-                      <p className={`text-xs ${kpi.change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
-                        {kpi.change} vs last period
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          {/* KPI Cards Grid */}
+          <DashboardKPICards />
 
-            {/* Filters Row */}
-            <div className="flex flex-col sm:flex-row gap-6 mb-6 items-start sm:items-center justify-between">
-              <div className="flex flex-wrap gap-3">
-                {timeRanges.map((range) => (
-                  <Button
-                    key={range.value}
-                    variant={selectedTimeRange === range.value ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setSelectedTimeRange(range.value)}
-                    className={`transition-all duration-200 ease-out rounded-full px-4 ${
-                      selectedTimeRange === range.value ? 
-                      "bg-red-600 hover:bg-red-700 text-white" : 
-                      "bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-white"
-                    }`}
+          {/* Filters Row */}
+          <DashboardFilters 
+            selectedTimeRange={selectedTimeRange}
+            onTimeRangeChange={setSelectedTimeRange}
+          />
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Recent Uploads & Calendar */}
+            <div className="lg:col-span-2 flex flex-col gap-6">
+              {/* Recent Uploads Table */}
+              <Card className="glass-card">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl font-semibold">Recent Uploads</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div 
+                    className="custom-scrollbar overflow-y-auto"
+                    style={{ maxHeight: 'clamp(280px, 46vh, 460px)' }}
                   >
-                    {range.label}
-                  </Button>
-                ))}
-              </div>
-              <Select value={selectedChannelId || "all"} onValueChange={(value) => setSelectedChannelId(value === "all" ? null : value)}>
-                <SelectTrigger className="w-[200px] bg-card border-border">
-                  <SelectValue placeholder="All Channels" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
-                  <SelectItem value="all">All Channels</SelectItem>
-                  {channels?.map((channel) => (
-                    <SelectItem key={channel.id} value={channel.id}>
-                      {channel.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column - Recent Uploads & Calendar */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Recent Uploads Table */}
-                <Card className="bg-card border-border">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-xl font-semibold">Recent Uploads</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
                     <Table>
                       <TableHeader>
                         <TableRow className="border-border">
@@ -240,109 +132,106 @@ export default function DashboardPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {recentUploads.map((video) => (
-                          <TableRow 
-                            key={video.id} 
-                            className="border-border hover:bg-neutral-800 transition-all duration-200 ease-out group h-[56px]"
-                          >
-                            <TableCell className="py-2 pl-6">
-                              <div className="h-[34px] w-[60px] rounded overflow-hidden flex items-center justify-center">
-                                <img 
-                                  src={video.thumbnail} 
-                                  alt={video.title} 
-                                  className="h-full w-full object-cover"
-                                />
-                              </div>
-                            </TableCell>
-                            <TableCell className="font-medium max-w-[300px] py-2">
-                              <div className="truncate">{video.title}</div>
-                            </TableCell>
-                            <TableCell className="py-2">
-                              <Badge variant="outline" className="bg-neutral-700 text-neutral-300 border-neutral-600">
-                                {video.channel}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="py-2">{video.views}</TableCell>
-                            <TableCell className="py-2">
-                              <Badge className={`transition-all duration-200 ease-out ${getStatusColor(video.status)}`}>
-                                {video.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="py-2 pr-6">
-                              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
-                                      <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="bg-popover border-border">
-                                    <DropdownMenuItem className="hover:bg-accent">
-                                      <Play className="mr-2 h-4 w-4" />
-                                      View
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="hover:bg-accent">
-                                      <Edit className="mr-2 h-4 w-4" />
-                                      Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="text-red-400 hover:bg-accent">
-                                      <Trash className="mr-2 h-4 w-4" />
-                                      Delete
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {recentUploads.map((video) => {
+                          const statusColors = getStatusColor(video.status);
+                          return (
+                            <TableRow 
+                              key={video.id} 
+                              className="border-border group h-[56px] transition-all duration-200 ease-out"
+                              style={{ backgroundColor: 'transparent' }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#1a1b22';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                              }}
+                            >
+                              <TableCell className="py-2 pl-6">
+                                <div className="h-[34px] w-[60px] rounded overflow-hidden flex items-center justify-center">
+                                  <img 
+                                    src={video.thumbnail} 
+                                    alt={video.title} 
+                                    className="h-full w-full object-cover"
+                                  />
+                                </div>
+                              </TableCell>
+                              <TableCell className="font-medium max-w-[300px] py-2">
+                                <div className="truncate">{video.title}</div>
+                              </TableCell>
+                              <TableCell className="py-2">
+                                <Badge 
+                                  variant="outline" 
+                                  style={{ backgroundColor: "#1c1d24", color: "#d1d5db", border: "1px solid #262732" }}
+                                >
+                                  {video.channel}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="py-2">{video.views}</TableCell>
+                              <TableCell className="py-2">
+                                <Badge 
+                                  className="transition-all duration-200 ease-out"
+                                  style={{ backgroundColor: statusColors.bg, color: statusColors.text, border: "none" }}
+                                >
+                                  {video.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="py-2 pr-6">
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="glass-card">
+                                      <DropdownMenuItem className="hover:bg-accent">
+                                        <Play className="mr-2 h-4 w-4" />
+                                        View
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem className="hover:bg-accent">
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Edit
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem className="text-red-400 hover:bg-accent">
+                                        <Trash className="mr-2 h-4 w-4" />
+                                        Delete
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
-                  </CardContent>
-                </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
-                {/* Content Calendar */}
-                <Card className="bg-card border-border">
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-xl font-semibold">Content Calendar</CardTitle>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              disabled 
-                              className="bg-neutral-700 text-neutral-300 border-neutral-600 hover:bg-neutral-600"
-                            >
-                              Optimize Time
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs">AI optimization coming in v2</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <DashboardContentCalendar />
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Right Column - Performance Overview */}
-              <div>
-                <Card className="bg-card border-border">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-xl font-semibold">Performance Overview</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <DashboardPerformanceChart />
-                  </CardContent>
-                </Card>
-              </div>
+              {/* Content Calendar */}
+              <Card className="glass-card">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl font-semibold">Content Calendar</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DashboardContentCalendar />
+                </CardContent>
+              </Card>
             </div>
-          </ScrollArea>
+
+            {/* Right Column - Performance Overview */}
+            <div className="lg:flex lg:flex-col lg:w-[340px] lg:sticky lg:top-[96px]">
+              <Card className="glass-card">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl font-semibold">Performance Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DashboardPerformanceChart />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </section>
       </main>
     </div>
