@@ -5,67 +5,66 @@
 
 @layer base {
   :root {
-    --background: linear-gradient(180deg, #09090d 0%, #0d0d12 30%, #0e0e15 100%);
-    --foreground: #d1d5db;
-    --card: #11131a;
-    --card-foreground: #d1d5db;
-    --popover: #11131a;
-    --popover-foreground: #d1d5db;
-    --primary: #ff3b47;
-    --primary-foreground: #ffffff;
-    --secondary: #f4f4f5;
-    --secondary-foreground: #09090d;
-    --muted: #1c1d24;
-    --muted-foreground: #64748b;
-    --accent: #1c1d24;
-    --accent-foreground: #d1d5db;
-    --destructive: #dc2626;
-    --destructive-foreground: #ffffff;
-    --border: #262732;
-    --input: #1c1d24;
-    --ring: #ff3b47;
-    --radius: 1rem;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 85% 40%; /* Made red darker */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --radius: 0.75rem;
 
-    --sidebar-background: #11131a;
-    --sidebar-foreground: #d1d5db;
-    --sidebar-primary: #ff3b47;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #1c1d24;
-    --sidebar-accent-foreground: #d1d5db;
-    --sidebar-border: #262732;
-    --sidebar-ring: #ff3b47;
-    --sidebar-width: 0px;
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 240 5% 84.9%;
+    --sidebar-primary: 0 85% 40%; /* Made red darker */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 5% 84.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 0 85% 40%; /* Made red darker */
   }
 
   .light {
-    --background: #ffffff;
-    --foreground: #09090d;
-    --card: #f8fafc;
-    --card-foreground: #09090d;
-    --popover: #ffffff;
-    --popover-foreground: #09090d;
-    --primary: #ff3b47;
-    --primary-foreground: #ffffff;
-    --secondary: #f1f5f9;
-    --secondary-foreground: #0f172a;
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    --accent: #f1f5f9;
-    --accent-foreground: #0f172a;
-    --destructive: #dc2626;
-    --destructive-foreground: #ffffff;
-    --border: #e2e8f0;
-    --input: #f1f5f9;
-    --ring: #ff3b47;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 96%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 0 85% 40%; /* Made red darker */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 0 85% 40%; /* Made red darker */
 
-    --sidebar-background: #ffffff;
-    --sidebar-foreground: #0f172a;
-    --sidebar-primary: #ff3b47;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #f1f5f9;
-    --sidebar-accent-foreground: #0f172a;
-    --sidebar-border: #e2e8f0;
-    --sidebar-ring: #ff3b47;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 0 85% 40%; /* Made red darker */
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 0 85% 40%; /* Made red darker */
   }
 }
 
@@ -75,15 +74,12 @@
   }
 
   body {
-    background: var(--background);
-    color: var(--foreground);
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground;
   }
 
   /* Focus-visible styles for accessibility */
   *:focus-visible {
-    @apply outline-none ring-2 ring-offset-2 ring-offset-background;
-    ring-color: hsl(var(--primary) / 0.7);
+    @apply outline-none ring-2 ring-purple-500 ring-offset-2 ring-offset-background;
   }
 
   /* Improved hover states */
@@ -94,21 +90,28 @@
 
 @layer components {
   .glass-card {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-lg;
   }
   
   .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
   
   .hide-scrollbar::-webkit-scrollbar {
-    display: none;
+    display: none; /* Chrome, Safari, Opera */
   }
 
-  /* Custom scrollbar styling */
+  /* Aumentar espaçamento nos hovers e menus */
+  .dropdown-menu-item {
+    @apply py-2.5 px-3;
+  }
+  
+  .sidebar-menu-item {
+    @apply py-2.5;
+  }
+  
+  /* Estilo para o scrollbar personalizado */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -119,13 +122,22 @@
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted) / 0.4);
-    @apply rounded-full;
+    @apply bg-muted/40 rounded-full;
+  }
+  
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-muted/30;
   }
   
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted) / 0.4) transparent;
+    scrollbar-color: var(--sb-thumb) var(--sb-track);
+    --sb-track: transparent;
+    --sb-thumb: hsl(var(--muted) / 0.4);
+  }
+  
+  .dark .custom-scrollbar {
+    --sb-thumb: hsl(var(--muted) / 0.3);
   }
 
   /* Enhanced animations and transitions */
@@ -135,15 +147,5 @@
 
   .animate-focus {
     @apply transition-all duration-200 ease-out;
-  }
-
-  /* Sidebar drawer animation */
-  .sidebar-drawer {
-    transform: translateX(-100%);
-    transition: transform 300ms ease-out;
-  }
-
-  .sidebar-drawer.open {
-    transform: translateX(0);
   }
 }

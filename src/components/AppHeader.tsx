@@ -3,8 +3,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLocation, Link } from "react-router-dom";
-import { Upload, Menu } from "lucide-react";
-import { useStore } from "@/lib/store";
+import { Upload } from "lucide-react";
 
 interface AppHeaderProps {
   showFilters?: boolean;
@@ -14,40 +13,19 @@ export function AppHeader({ showFilters = true }: AppHeaderProps) {
   const location = useLocation();
   const path = location.pathname;
   const isUploadActive = path === "/upload";
-  const { toggleSidebar } = useStore();
   
   return (
-    <header 
-      className="fixed top-0 w-full z-40 h-16 backdrop-blur-sm border-b border-border/40"
-      style={{ 
-        background: 'linear-gradient(180deg, #09090d 0%, #0d0d12 30%, #0e0e15 100%)',
-        boxShadow: '0 1px 0 rgba(0, 0, 0, 0.25)'
-      }}
-    >
-      <div 
-        className="flex h-16 items-center px-4 gap-4 justify-between transition-all duration-300"
-        style={{ paddingLeft: 'max(1rem, calc(1rem + var(--sidebar-width)))' }}
-      >
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleSidebar} 
-            className="text-foreground hover:bg-accent hover:text-accent-foreground lg:hidden"
-            aria-label="Toggle sidebar"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-        </div>
-        
+    <header className="sticky top-0 z-10 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <div className="flex h-16 items-center px-4 gap-4 justify-end">
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Link to="/upload">
             <Button 
+              variant="outline" 
               size="sm" 
               className={cn(
-                "gap-1 bg-primary hover:bg-primary/90 text-primary-foreground border-0",
-                isUploadActive && "bg-primary/80"
+                "gap-1 border-primary py-3",
+                isUploadActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-transparent hover:bg-primary hover:text-primary-foreground"
               )}
             >
               <Upload className="h-4 w-4" />

@@ -81,28 +81,24 @@ export function DashboardPerformanceChart() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {metrics.map((metric) => (
         <Card 
           key={metric.name} 
-          className="glass-card hover:bg-accent/50 transition-all duration-200 ease-out w-[200px]"
+          className="bg-neutral-800 border-neutral-700 hover:bg-neutral-750 transition-all duration-200 ease-out w-[200px]"
         >
-          <CardContent className="p-4 relative">
-            <div className="flex justify-between items-center mb-3">
-              <span className="font-medium text-sm text-foreground">{metric.name}</span>
+          <CardContent className="p-3 relative">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-medium text-sm text-white">{metric.name}</span>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="absolute top-2 right-2 z-10">
                       <Badge 
-                        className={`text-xs transition-all duration-200 ease-out ${
+                        variant="outline" 
+                        className={`text-xs bg-black/60 backdrop-blur-sm border-transparent transition-all duration-200 ease-out hover:bg-black/80 ${
                           metric.change.startsWith('+') ? 'text-green-400' : 'text-red-400'
                         }`}
-                        style={{ 
-                          backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                          backdropFilter: 'blur(4px)',
-                          border: 'none'
-                        }}
                       >
                         {metric.change}
                       </Badge>
