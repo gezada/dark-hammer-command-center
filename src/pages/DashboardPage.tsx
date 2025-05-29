@@ -34,7 +34,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <AppHeader />
-        <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[72px]' : 'ml-[240px]'}`}>
+        <main className={`flex-1 p-6 overflow-auto transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
           <DashboardSkeleton />
         </main>
       </div>
@@ -72,7 +72,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <AppHeader />
-      <main className={`flex-1 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-[72px]' : 'ml-[240px]'}`}>
+      <main className={`flex-1 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-[60px]' : 'ml-[240px]'}`}>
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-8">
           {/* Dashboard Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

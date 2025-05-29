@@ -70,37 +70,37 @@ export function RecentComments() {
     const filteredComments = getFilteredComments(filter);
     
     return (
-      <div className="space-y-4">
+      <div className="space-y-3 max-h-[500px] overflow-y-auto">
         {filteredComments.slice(0, 5).map((comment) => (
           <div 
             key={comment.id} 
-            className="p-4 bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg hover:bg-card/50 transition-all duration-200"
+            className="p-3 bg-card/30 backdrop-blur-sm border border-border/50 rounded-lg hover:bg-card/50 transition-all duration-200"
           >
             <div className="flex items-start gap-3">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarImage src={comment.commenterAvatar} alt={comment.commenter} />
                 <AvatarFallback>{comment.commenter.charAt(0)}</AvatarFallback>
               </Avatar>
               
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium text-sm">{comment.commenter}</span>
-                  <Badge variant="outline" className="text-xs bg-red-600/10 text-red-400 border-red-600/20">
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="font-medium text-sm truncate">{comment.commenter}</span>
+                  <Badge variant="outline" className="text-xs bg-red-600/10 text-red-400 border-red-600/20 flex-shrink-0">
                     {comment.channel}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">{comment.time}</span>
+                  <span className="text-xs text-muted-foreground flex-shrink-0">{comment.time}</span>
                 </div>
                 
-                <p className="text-sm text-foreground/90 mb-3 line-clamp-2">
+                <p className="text-sm text-foreground/90 mb-3 line-clamp-2 break-words">
                   {comment.text}
                 </p>
                 
-                {/* Action buttons - always visible */}
-                <div className="flex items-center gap-1">
+                {/* Action buttons - always visible, wrapped properly */}
+                <div className="flex items-center gap-1 flex-wrap">
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-8 px-3 text-green-400 hover:bg-green-400/10 hover:text-green-300"
+                    className="h-7 px-2 text-green-400 hover:bg-green-400/10 hover:text-green-300 flex-shrink-0"
                   >
                     <ThumbsUp className="h-3 w-3 mr-1" />
                     Curtir
@@ -108,7 +108,7 @@ export function RecentComments() {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-8 px-3 text-blue-400 hover:bg-blue-400/10 hover:text-blue-300"
+                    className="h-7 px-2 text-blue-400 hover:bg-blue-400/10 hover:text-blue-300 flex-shrink-0"
                   >
                     <MessageSquare className="h-3 w-3 mr-1" />
                     Responder
@@ -116,7 +116,7 @@ export function RecentComments() {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-8 px-3 text-gray-400 hover:bg-gray-400/10 hover:text-gray-300"
+                    className="h-7 px-2 text-gray-400 hover:bg-gray-400/10 hover:text-gray-300 flex-shrink-0"
                   >
                     <Eye className="h-3 w-3 mr-1" />
                     Ocultar
@@ -124,7 +124,7 @@ export function RecentComments() {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-8 px-3 text-red-400 hover:bg-red-400/10 hover:text-red-300"
+                    className="h-7 px-2 text-red-400 hover:bg-red-400/10 hover:text-red-300 flex-shrink-0"
                   >
                     <Flag className="h-3 w-3 mr-1" />
                     Denunciar
@@ -139,8 +139,8 @@ export function RecentComments() {
   };
 
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-      <CardHeader>
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50 h-fit">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Comentários Recentes</CardTitle>
           <Button variant="outline" size="sm" className="bg-card/50 backdrop-blur-sm border-border/50">
@@ -150,7 +150,7 @@ export function RecentComments() {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-card/50 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-3 bg-card/50 backdrop-blur-sm mb-4">
             <TabsTrigger value="all" className="text-xs">
               Todos ({comments.length})
             </TabsTrigger>
@@ -162,15 +162,15 @@ export function RecentComments() {
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="all" className="mt-4">
+          <TabsContent value="all">
             <CommentsList filter="all" />
           </TabsContent>
           
-          <TabsContent value="pending" className="mt-4">
+          <TabsContent value="pending">
             <CommentsList filter="pending" />
           </TabsContent>
           
-          <TabsContent value="responded" className="mt-4">
+          <TabsContent value="responded">
             <CommentsList filter="responded" />
           </TabsContent>
         </Tabs>

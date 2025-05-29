@@ -74,7 +74,7 @@ export function AppSidebar() {
       order: 5,
     },
     {
-      title: 'My Channels', // Updated from "Adicionar Canal"
+      title: 'My Channels',
       icon: PlusCircle,
       path: '/channels',
       accentColor: true,
@@ -98,7 +98,11 @@ export function AppSidebar() {
       <div className="flex items-center justify-between h-16 border-b border-sidebar-border px-4">
         {!sidebarCollapsed ? (
           <Link to="/dashboard" className="flex items-center">
-            <h1 className="text-xl font-bold text-primary truncate">Dark Hammer</h1>
+            <img 
+              src="/lovable-uploads/d9a61b5f-cab1-4d12-8259-90e80cac409f.png" 
+              alt="VibeTube" 
+              className="h-8 w-auto"
+            />
           </Link>
         ) : (
           <div></div>
