@@ -24,7 +24,7 @@ const queryClient = new QueryClient();
 
 const App = () => {
   // Move the useStore hook inside the component body
-  const { theme } = useStore();
+  const { theme, sidebarCollapsed } = useStore();
   
   // Apply theme on initial load
   useEffect(() => {
@@ -41,7 +41,13 @@ const App = () => {
           <div className="flex w-full overflow-hidden min-h-screen">
             <CommandPalette />
             <AppSidebar />
-            <div className="flex flex-col flex-grow">
+            <div 
+              className={`flex flex-col flex-grow transition-all duration-300 ${
+                sidebarCollapsed 
+                  ? "lg:ml-[72px]" 
+                  : "lg:ml-[260px]"
+              }`}
+            >
               <Routes>
                 {/* Redirect root to dashboard */}
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
