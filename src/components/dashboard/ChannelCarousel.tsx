@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, RefreshCw } from "lucide-react";
 
 export function ChannelCarousel() {
   const channels = [
@@ -16,6 +16,7 @@ export function ChannelCarousel() {
       videos: 42,
       status: "growing",
       growth: "+5.2%",
+      lastSync: "3h",
       data: [
         { value: 14000 },
         { value: 14200 },
@@ -33,6 +34,7 @@ export function ChannelCarousel() {
       videos: 28,
       status: "stable",
       growth: "+0.1%",
+      lastSync: "5h",
       data: [
         { value: 8600 },
         { value: 8650 },
@@ -50,6 +52,7 @@ export function ChannelCarousel() {
       videos: 67,
       status: "growing",
       growth: "+8.3%",
+      lastSync: "2h",
       data: [
         { value: 21000 },
         { value: 21500 },
@@ -67,6 +70,7 @@ export function ChannelCarousel() {
       videos: 19,
       status: "declining",
       growth: "-2.1%",
+      lastSync: "8h",
       data: [
         { value: 5800 },
         { value: 5700 },
@@ -100,6 +104,28 @@ export function ChannelCarousel() {
     }
   };
 
+  const getButtonStyle = (status: string) => {
+    switch (status) {
+      case "growing":
+        return "bg-green-700 hover:bg-green-800 text-white border-0";
+      case "declining":
+        return "bg-red-700 hover:bg-red-800 text-white border-0";
+      default:
+        return "bg-yellow-700 hover:bg-yellow-800 text-white border-0";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "growing":
+        return "Crescendo";
+      case "declining":
+        return "Diminuindo";
+      default:
+        return "Estável";
+    }
+  };
+
   return (
     <section>
       <div className="flex items-center justify-between mb-6">
@@ -124,12 +150,19 @@ export function ChannelCarousel() {
                   </Avatar>
                   <div>
                     <h3 className="font-semibold">{channel.name}</h3>
-                    <p className="text-sm text-muted-foreground">{channel.videos} vídeos</p>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>{channel.videos} vídeos</span>
+                      <span>•</span>
+                      <div className="flex items-center gap-1">
+                        <RefreshCw className="h-3 w-3" />
+                        <span>{channel.lastSync} atrás</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <Badge variant="outline" className={`text-xs ${getStatusColor(channel.status)}`}>
                   {getStatusIcon(channel.status)}
-                  <span className="ml-1 capitalize">{channel.status === "growing" ? "Crescendo" : channel.status === "declining" ? "Diminuindo" : "Estável"}</span>
+                  <span className="ml-1">{getStatusText(channel.status)}</span>
                 </Badge>
               </div>
 
@@ -149,27 +182,28 @@ export function ChannelCarousel() {
                 </div>
               </div>
 
+              {/* Mini Sparkline */}
               <div className="h-12 mb-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={channel.data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id={`gradient-${channel.id}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ff3b47" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#ff3b47" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#6b7280" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#6b7280" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <Area 
                       type="monotone" 
                       dataKey="value" 
-                      stroke="#ff3b47" 
-                      strokeWidth={2}
+                      stroke="#6b7280" 
+                      strokeWidth={1.5}
                       fill={`url(#gradient-${channel.id})`} 
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
 
-              <Button variant="outline" className="w-full bg-red-600/10 text-red-400 border-red-600/20 hover:bg-red-600/20">
+              <Button variant="outline" className={`w-full ${getButtonStyle(channel.status)}`}>
                 Abrir Canal
               </Button>
             </CardContent>
