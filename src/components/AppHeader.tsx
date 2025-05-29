@@ -16,7 +16,20 @@ export function AppHeader({ showFilters = true }: AppHeaderProps) {
   
   return (
     <header className="sticky top-0 z-10 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="flex h-16 items-center px-4 gap-4 justify-end">
+      <div className="flex h-16 items-center px-4 gap-4 justify-between">
+        {/* VibeTube Logo */}
+        <div className="flex items-center gap-3">
+          <img 
+            src="/lovable-uploads/d9a61b5f-cab1-4d12-8259-90e80cac409f.png" 
+            alt="VibeTube" 
+            className="h-8 w-auto"
+          />
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold text-foreground">VibeTube</span>
+            <span className="text-xs bg-red-600/20 text-red-400 px-2 py-1 rounded-full">Live Beta</span>
+          </div>
+        </div>
+
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Link to="/upload">

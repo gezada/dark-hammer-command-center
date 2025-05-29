@@ -2,7 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Lightbulb, Calendar, Award, ChevronLeft, ChevronRight } from "lucide-react";
+import { TrendingUp, Lightbulb, Calendar, Award, ChevronLeft, ChevronRight, Brain, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export function RecommendedSummary() {
@@ -70,6 +70,26 @@ export function RecommendedSummary() {
       icon: Calendar,
       image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=80&h=80&fit=crop&crop=center",
       gradient: "from-red-500/20 to-red-600/20"
+    },
+    {
+      id: 5,
+      title: "Trending Topic",
+      subtitle: "IA e YouTube",
+      value: "+34% crescimento",
+      change: "Esta semana",
+      icon: Brain,
+      image: null,
+      gradient: "from-purple-500/20 to-purple-600/20"
+    },
+    {
+      id: 6,
+      title: "Melhor Horário",
+      subtitle: "Tech Tutorials",
+      value: "20h - 21h",
+      change: "Pico de audiência",
+      icon: Clock,
+      image: null,
+      gradient: "from-orange-500/20 to-orange-600/20"
     }
   ];
 
@@ -91,7 +111,7 @@ export function RecommendedSummary() {
       </div>
       
       {/* Desktop: Grid layout */}
-      <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {recommendations.map((item) => (
           <Card 
             key={item.id} 

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Users, TrendingUp, Clock, DollarSign, Eye, Calendar, MessageSquare, Upload, ChevronDown, Filter, Settings } from "lucide-react";
+import { Users, TrendingUp, Clock, DollarSign, Eye, Calendar, MessageSquare, Upload, ChevronDown, Filter, Settings, X, AlertTriangle, CheckCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RecommendedSummary } from "@/components/dashboard/RecommendedSummary";
 import { PerformanceOverview } from "@/components/dashboard/PerformanceOverview";
@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const { sidebarCollapsed, channels, selectedChannelId, setSelectedChannelId } = useStore();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTimeRange, setSelectedTimeRange] = useState("28d");
+  const [showAlert, setShowAlert] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -47,6 +48,26 @@ export default function DashboardPage() {
     { value: "365d", label: "1 ano" },
     { value: "all", label: "Todo período" }
   ];
+
+  // Mock alert data
+  const alertStatus = "success"; // "error", "warning", "success"
+  const alertMessages = {
+    error: "Canal X com erro de autenticação",
+    warning: "Upload travado no canal Y", 
+    success: "Tudo está funcionando bem!"
+  };
+
+  const alertIcons = {
+    error: <AlertTriangle className="h-4 w-4" />,
+    warning: <AlertTriangle className="h-4 w-4" />,
+    success: <CheckCircle className="h-4 w-4" />
+  };
+
+  const alertColors = {
+    error: "bg-red-500/10 border-red-500/20 text-red-400",
+    warning: "bg-yellow-500/10 border-yellow-500/20 text-yellow-400",
+    success: "bg-green-500/10 border-green-500/20 text-green-400"
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -96,6 +117,24 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+
+          {/* Live Alert Bar */}
+          {showAlert && (
+            <div className={`flex items-center justify-between px-4 py-3 rounded-lg border backdrop-blur-sm transition-all duration-300 ${alertColors[alertStatus]}`}>
+              <div className="flex items-center gap-2">
+                {alertIcons[alertStatus]}
+                <span className="text-sm font-medium">{alertMessages[alertStatus]}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 hover:bg-white/10"
+                onClick={() => setShowAlert(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
           {/* Recommended Summary */}
           <RecommendedSummary />

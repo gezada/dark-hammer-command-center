@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ThumbsUp, MessageSquare, Ban } from "lucide-react";
+import { ThumbsUp, MessageSquare, Eye, Flag } from "lucide-react";
 
 export function RecentComments() {
   const comments = [
@@ -95,18 +95,39 @@ export function RecentComments() {
                   {comment.text}
                 </p>
                 
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" className="h-7 px-2 text-green-400 hover:bg-green-400/10">
+                {/* Action buttons - always visible */}
+                <div className="flex items-center gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 px-3 text-green-400 hover:bg-green-400/10 hover:text-green-300"
+                  >
                     <ThumbsUp className="h-3 w-3 mr-1" />
                     Curtir
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-7 px-2 text-blue-400 hover:bg-blue-400/10">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 px-3 text-blue-400 hover:bg-blue-400/10 hover:text-blue-300"
+                  >
                     <MessageSquare className="h-3 w-3 mr-1" />
                     Responder
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-7 px-2 text-red-400 hover:bg-red-400/10">
-                    <Ban className="h-3 w-3 mr-1" />
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 px-3 text-gray-400 hover:bg-gray-400/10 hover:text-gray-300"
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
                     Ocultar
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 px-3 text-red-400 hover:bg-red-400/10 hover:text-red-300"
+                  >
+                    <Flag className="h-3 w-3 mr-1" />
+                    Denunciar
                   </Button>
                 </div>
               </div>

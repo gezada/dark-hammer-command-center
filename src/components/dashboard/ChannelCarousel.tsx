@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, Minus, RefreshCw } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, RefreshCw, Flame, MessageSquare, AlertTriangle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function ChannelCarousel() {
   const channels = [
@@ -17,6 +18,13 @@ export function ChannelCarousel() {
       status: "growing",
       growth: "+5.2%",
       lastSync: "3h",
+      intelligentBadge: {
+        type: "viral",
+        label: "Viral Spike",
+        description: "'React Hooks Tutorial' alcançou 4x mais visualizações",
+        icon: Flame,
+        color: "bg-orange-500/10 text-orange-400 border-orange-500/20"
+      },
       data: [
         { value: 14000 },
         { value: 14200 },
@@ -35,6 +43,13 @@ export function ChannelCarousel() {
       status: "stable",
       growth: "+0.1%",
       lastSync: "5h",
+      intelligentBadge: {
+        type: "engagement",
+        label: "Engagement ↑",
+        description: "Comentários aumentaram 25% esta semana",
+        icon: MessageSquare,
+        color: "bg-blue-500/10 text-blue-400 border-blue-500/20"
+      },
       data: [
         { value: 8600 },
         { value: 8650 },
@@ -53,6 +68,13 @@ export function ChannelCarousel() {
       status: "growing",
       growth: "+8.3%",
       lastSync: "2h",
+      intelligentBadge: {
+        type: "stable",
+        label: "Estável",
+        description: "Performance consistente nos últimos 30 dias",
+        icon: TrendingUp,
+        color: "bg-green-500/10 text-green-400 border-green-500/20"
+      },
       data: [
         { value: 21000 },
         { value: 21500 },
@@ -71,6 +93,13 @@ export function ChannelCarousel() {
       status: "declining",
       growth: "-2.1%",
       lastSync: "8h",
+      intelligentBadge: {
+        type: "warning",
+        label: "Atenção",
+        description: "Tempo de visualização caiu 12% no último mês",
+        icon: AlertTriangle,
+        color: "bg-red-500/10 text-red-400 border-red-500/20"
+      },
       data: [
         { value: 5800 },
         { value: 5700 },
@@ -139,9 +168,25 @@ export function ChannelCarousel() {
         {channels.map((channel) => (
           <Card 
             key={channel.id} 
-            className="group bg-card/50 backdrop-blur-sm border-border/50 hover:bg-card/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            className="group relative bg-card/50 backdrop-blur-sm border-border/50 hover:bg-card/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
           >
             <CardContent className="p-6">
+              {/* Intelligent Badge */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge 
+                    variant="outline" 
+                    className={`absolute top-4 right-4 text-xs ${channel.intelligentBadge.color} hover:scale-105 transition-transform cursor-help`}
+                  >
+                    <channel.intelligentBadge.icon className="h-3 w-3 mr-1" />
+                    {channel.intelligentBadge.label}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">{channel.intelligentBadge.description}</p>
+                </TooltipContent>
+              </Tooltip>
+
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12">
