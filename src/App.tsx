@@ -23,7 +23,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Use the hook inside the component body
+  // Move the useStore hook inside the component body
   const { theme } = useStore();
   
   // Apply theme on initial load
