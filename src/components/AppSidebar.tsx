@@ -74,7 +74,7 @@ export function AppSidebar() {
       order: 5,
     },
     {
-      title: 'My Channels',
+      title: 'My Channels', // Updated from "Adicionar Canal"
       icon: PlusCircle,
       path: '/channels',
       accentColor: true,
@@ -89,206 +89,172 @@ export function AppSidebar() {
   ];
 
   return (
-    <>
-      {/* Mobile overlay backdrop */}
-      {!sidebarCollapsed && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={toggleSidebar}
-        />
+    <div
+      className={cn(
+        "fixed inset-y-0 left-0 z-30 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300",
+        sidebarCollapsed ? "w-[60px]" : "w-[240px]"
       )}
-      
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 z-40 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300",
-          // Desktop and tablet behavior
-          "lg:translate-x-0",
-          sidebarCollapsed ? "w-[60px] lg:w-[72px]" : "w-[240px] lg:w-[260px]",
-          // Mobile behavior - overlay
-          "lg:relative",
-          // Mobile transform
-          sidebarCollapsed ? "-translate-x-full lg:translate-x-0" : "translate-x-0"
+    >
+      <div className="flex items-center justify-between h-16 border-b border-sidebar-border px-4">
+        {!sidebarCollapsed ? (
+          <Link to="/dashboard" className="flex items-center">
+            <h1 className="text-xl font-bold text-primary truncate">Dark Hammer</h1>
+          </Link>
+        ) : (
+          <div></div>
         )}
-      >
-        <div className="flex items-center justify-between h-16 border-b border-sidebar-border px-4">
-          {!sidebarCollapsed ? (
-            <Link to="/dashboard" className="flex items-center gap-2">
-              <img 
-                src="/lovable-uploads/d9a61b5f-cab1-4d12-8259-90e80cac409f.png" 
-                alt="VibeTube" 
-                className="h-8 w-auto"
-              />
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-white">
-                  Vibe<span className="text-red-500">Tube</span>
-                </span>
-                <Badge className="text-xs bg-red-600/20 text-red-400 px-2 py-0.5 rounded-full border-none">
-                  Live Beta
-                </Badge>
-              </div>
-            </Link>
-          ) : (
-            <Link to="/dashboard" className="flex items-center justify-center w-full">
-              <img 
-                src="/lovable-uploads/d9a61b5f-cab1-4d12-8259-90e80cac409f.png" 
-                alt="VibeTube" 
-                className="h-8 w-auto"
-              />
-            </Link>
-          )}
-          
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleSidebar} 
-            className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-10 h-10 flex items-center justify-center lg:ml-auto"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-        </div>
-        
-        <nav className="flex-1 space-y-1 px-2 py-4 overflow-y-auto">
-          <TooltipProvider>
-            {menuItems.map((item) => (
-              <div key={item.path}>
-                {sidebarCollapsed ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        to={item.path}
-                        className={cn(
-                          "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors relative",
-                          isActive(item.path)
-                            ? "bg-primary text-primary-foreground"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                        )}
-                      >
-                        <item.icon className="h-5 w-5 mx-auto" />
-                        {item.badge && (
-                          <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-primary text-white">
-                            {item.badge}
-                          </Badge>
-                        )}
-                        <span className="sr-only">{item.title}</span>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      {item.title}
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <Link
-                    to={item.path}
-                    className={cn(
-                      "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors relative",
-                      isActive(item.path)
-                        ? "bg-primary text-primary-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5 mr-2" />
-                    <span>{item.title}</span>
-                    {item.badge && (
-                      <Badge className="ml-auto bg-primary text-white">
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </TooltipProvider>
-        </nav>
-        
-        {/* Bottom menu items */}
-        <div className="p-2 space-y-2 mb-2 mt-auto">
-          <TooltipProvider>
-            {bottomMenuItems.map((item) => (
-              <div key={item.path}>
-                {sidebarCollapsed ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        to={item.path}
-                        className={cn(
-                          "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
-                          isActive(item.path)
-                            ? "bg-primary text-primary-foreground"
-                            : item.accentColor 
-                              ? "text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
-                              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                          item.outlined && !isActive(item.path) && "border border-primary"
-                        )}
-                      >
-                        <item.icon className={cn(
-                          "h-5 w-5 mx-auto",
-                          item.accentColor && !isActive(item.path) && "text-primary",
-                          isActive(item.path) && item.accentColor && "text-primary-foreground"
-                        )} />
-                        <span className="sr-only">{item.title}</span>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      {item.title}
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <Link
-                    to={item.path}
-                    className={cn(
-                      "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
-                      isActive(item.path)
-                        ? "bg-primary text-primary-foreground"
-                        : item.accentColor 
-                          ? "text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
-                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      item.outlined && !isActive(item.path) && "border border-primary bg-transparent"
-                    )}
-                  >
-                    <item.icon className={cn(
-                      "h-5 w-5 mr-2",
-                      item.accentColor && !isActive(item.path) && "text-primary",
-                      isActive(item.path) && item.accentColor && "text-primary-foreground"
-                    )} />
-                    <span>{item.title}</span>
-                  </Link>
-                )}
-              </div>
-            ))}
-          </TooltipProvider>
-        </div>
-        
-        <div className="p-2 border-t border-sidebar-border">
-          <div className="flex items-center justify-between p-2 rounded-md">
-            {!sidebarCollapsed ? (
-              <div className="flex items-center flex-1">
-                <Avatar className="h-8 w-8 mr-2">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>{userName?.[0] || "JD"}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-sidebar-foreground">{userName || "John Doe"}</p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={handleLogout}
-                  className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-2 h-10 w-10"
+        {/* Fixed hover issue for the menu button */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleSidebar} 
+          className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-10 h-10 flex items-center justify-center"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      </div>
+      
+      <nav className="flex-1 space-y-1 px-2 py-4 overflow-y-auto">
+        <TooltipProvider>
+          {menuItems.map((item) => (
+            <div key={item.path}>
+              {sidebarCollapsed ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={item.path}
+                      className={cn(
+                        "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors relative",
+                        isActive(item.path)
+                          ? "bg-primary text-primary-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5 mx-auto" />
+                      {item.badge && (
+                        <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-primary text-white">
+                          {item.badge}
+                        </Badge>
+                      )}
+                      <span className="sr-only">{item.title}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {item.title}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Link
+                  to={item.path}
+                  className={cn(
+                    "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors relative",
+                    isActive(item.path)
+                      ? "bg-primary text-primary-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
                 >
-                  <LogIn className="h-5 w-5" />
-                </Button>
+                  <item.icon className="h-5 w-5 mr-2" />
+                  <span>{item.title}</span>
+                  {item.badge && (
+                    <Badge className="ml-auto bg-primary text-white">
+                      {item.badge}
+                    </Badge>
+                  )}
+                </Link>
+              )}
+            </div>
+          ))}
+        </TooltipProvider>
+      </nav>
+      
+      {/* Bottom menu items */}
+      <div className="p-2 space-y-2 mb-2 mt-auto">
+        <TooltipProvider>
+          {bottomMenuItems.map((item) => (
+            <div key={item.path}>
+              {sidebarCollapsed ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={item.path}
+                      className={cn(
+                        "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
+                        isActive(item.path)
+                          ? "bg-primary text-primary-foreground"
+                          : item.accentColor 
+                            ? "text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        item.outlined && !isActive(item.path) && "border border-primary"
+                      )}
+                    >
+                      <item.icon className={cn(
+                        "h-5 w-5 mx-auto",
+                        item.accentColor && !isActive(item.path) && "text-primary",
+                        isActive(item.path) && item.accentColor && "text-primary-foreground"
+                      )} />
+                      <span className="sr-only">{item.title}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {item.title}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Link
+                  to={item.path}
+                  className={cn(
+                    "flex items-center px-3 py-3 rounded-md text-sm font-medium transition-colors",
+                    isActive(item.path)
+                      ? "bg-primary text-primary-foreground"
+                      : item.accentColor 
+                        ? "text-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    item.outlined && !isActive(item.path) && "border border-primary bg-transparent"
+                  )}
+                >
+                  <item.icon className={cn(
+                    "h-5 w-5 mr-2",
+                    item.accentColor && !isActive(item.path) && "text-primary",
+                    isActive(item.path) && item.accentColor && "text-primary-foreground"
+                  )} />
+                  <span>{item.title}</span>
+                </Link>
+              )}
+            </div>
+          ))}
+        </TooltipProvider>
+      </div>
+      
+      <div className="p-2 border-t border-sidebar-border">
+        <div className="flex items-center justify-between p-2 rounded-md">
+          {!sidebarCollapsed ? (
+            <div className="flex items-center flex-1">
+              <Avatar className="h-8 w-8 mr-2">
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback>{userName?.[0] || "JD"}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-sidebar-foreground">{userName || "John Doe"}</p>
               </div>
-            ) : (
-              <div className="flex items-center justify-center w-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>{userName?.[0] || "JD"}</AvatarFallback>
-                </Avatar>
-              </div>
-            )}
-          </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleLogout}
+                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-2 h-10 w-10"
+              >
+                <LogIn className="h-5 w-5" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center w-full">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback>{userName?.[0] || "JD"}</AvatarFallback>
+              </Avatar>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

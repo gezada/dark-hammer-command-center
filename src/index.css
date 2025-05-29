@@ -102,20 +102,6 @@
     display: none; /* Chrome, Safari, Opera */
   }
 
-  /* Z-index utilities */
-  .z-sidebar { @apply z-40; }
-  .z-header { @apply z-30; }
-
-  /* Sidebar utilities */
-  .sidebar-collapsed .sidebar-brand span,
-  .sidebar-collapsed .sidebar-brand .beta-badge { 
-    @apply hidden; 
-  }
-
-  .sidebar-icon { 
-    @apply flex items-center justify-center w-10 h-10 mx-auto; 
-  }
-
   /* Aumentar espaçamento nos hovers e menus */
   .dropdown-menu-item {
     @apply py-2.5 px-3;
